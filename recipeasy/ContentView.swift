@@ -1,55 +1,58 @@
-//
-//  ContentView.swift
-//  recipeasy
-//
-//  Created by Simon Erlic on 2024-11-16.
-//
-
+// ContentView.swift
 import SwiftUI
 import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
+    @Query(
+        sort: \Recipe.dateModified,
+        order: .reverse,
+        animation: .default
+    ) private var recipes: [Recipe]
+    @State private var showingAddRecipe = false
+    
     var body: some View {
         NavigationSplitView {
             List {
-                ForEach(items) { item in
+                ForEach(recipes) { recipe in
                     NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
+                        RecipeDetailView(recipe: recipe)
                     } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+                        RecipeRowView(recipe: recipe)
                     }
                 }
-                .onDelete(perform: deleteItems)
+                .onDelete(perform: deleteRecipes)
             }
+            .navigationTitle("My Recipes")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     EditButton()
                 }
                 ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
+                    Button(action: { showingAddRecipe = true }) {
+                        Label("Add Recipe", systemImage: "plus")
                     }
                 }
             }
         } detail: {
-            Text("Select an item")
+            Text("Select a recipe")
+        }
+        .sheet(isPresented: $showingAddRecipe) {
+            NavigationStack {
+                AddRecipeView()
+            }
+            .presentationDragIndicator(.visible)
         }
     }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
+    
+    private func deleteRecipes(offsets: IndexSet) {
         withAnimation {
             for index in offsets {
-                modelContext.delete(items[index])
+                let recipe = recipes[index]
+                // Delete related entities first
+                recipe.ingredients.forEach { modelContext.delete($0) }
+                recipe.steps.forEach { modelContext.delete($0) }
+                modelContext.delete(recipe)
             }
         }
     }
@@ -57,5 +60,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+        .modelContainer(for: Recipe.self, inMemory: true)
 }
