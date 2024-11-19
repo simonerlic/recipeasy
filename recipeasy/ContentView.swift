@@ -1,4 +1,11 @@
-// ContentView.swift
+//
+//
+//  ContentView.swift
+//  recipeasy
+//
+//  Created by Simon Erlic on 2024-11-16.
+//
+
 import SwiftUI
 import SwiftData
 
@@ -13,22 +20,20 @@ struct ContentView: View {
     
     var body: some View {
         NavigationSplitView {
-            List {
-                ForEach(recipes) { recipe in
-                    NavigationLink {
-                        RecipeDetailView(recipe: recipe)
-                    } label: {
-                        RecipeRowView(recipe: recipe)
+            ScrollView {
+                LazyVStack(spacing: 16) {
+                    ForEach(recipes) { recipe in
+                        NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
+                            RecipeCard(recipe: recipe)
+                        }
+                        .buttonStyle(PlainButtonStyle())
                     }
                 }
-                .onDelete(perform: deleteRecipes)
+                .padding()
             }
             .navigationTitle("My Recipes")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
                     Button(action: { showingAddRecipe = true }) {
                         Label("Add Recipe", systemImage: "plus")
                     }

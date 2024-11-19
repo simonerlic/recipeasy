@@ -1,3 +1,11 @@
+//
+//  EditRecipeView.swift
+//  recipeasy
+//
+//  Created by Simon Erlic on 2024-11-17.
+//
+
+
 import SwiftUI
 import SwiftData
 
@@ -6,6 +14,8 @@ struct EditRecipeView: View {
     @Environment(\.dismiss) private var dismiss
     
     @Bindable var recipe: Recipe
+    
+    let onDelete: () -> Void
     
     @State private var name: String
     @State private var recipeDescription: String
@@ -27,8 +37,11 @@ struct EditRecipeView: View {
     @State private var currentIngredientUnit = ""
     @State private var currentIngredientNotes = ""
     
-    init(recipe: Recipe) {
+    @State private var showingDeleteConfirmation = false
+    
+    init(recipe: Recipe, onDelete: @escaping () -> Void) {
         self.recipe = recipe
+        self.onDelete = onDelete
         _name = State(initialValue: recipe.name)
         _recipeDescription = State(initialValue: recipe.recipeDescription)
         _cookingTimeMinutes = State(initialValue: recipe.cookingTimeMinutes)
@@ -109,6 +122,21 @@ struct EditRecipeView: View {
                 TextField("Recipe Notes", text: $notes, axis: .vertical)
                     .lineLimit(3...6)
             }
+            
+            
+            if !name.isEmpty {
+                Section {
+                    Button(role: .destructive) {
+                        showingDeleteConfirmation = true  // Show confirmation instead of direct deletion
+                    } label: {
+                        HStack {
+                            Image(systemName: "trash")
+                            Text("Delete Recipe")
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                }
+            }
         }
         .navigationTitle("Edit Recipe")
         .navigationBarTitleDisplayMode(.inline)
@@ -183,6 +211,14 @@ struct EditRecipeView: View {
             .presentationDetents([.medium])
             .presentationDragIndicator(.visible)
         }
+        .alert("Delete Recipe?", isPresented: $showingDeleteConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                deleteRecipe()
+            }
+        } message: {
+            Text("Are you sure you want to delete this recipe? This action cannot be undone.")
+        }
     }
     
     private func saveRecipe() {
@@ -195,22 +231,35 @@ struct EditRecipeView: View {
         recipe.dateModified = Date()
         dismiss()
     }
+    
+    private func deleteRecipe() {
+        // Delete related entities first
+        recipe.ingredients.forEach { modelContext.delete($0) }
+        recipe.steps.forEach { modelContext.delete($0) }
+        // Then delete the recipe
+        modelContext.delete(recipe)
+        dismiss() // Dismiss the edit view
+        onDelete() // Dismiss the detail view
+    }
 }
 
 #Preview {
     NavigationStack {
-        EditRecipeView(recipe: Recipe(
-            name: "Test Recipe",
-            recipeDescription: "A test recipe description",
-            ingredients: [
-                Ingredient(name: "Flour", amount: 2, unit: "cups"),
-                Ingredient(name: "Sugar", amount: 1, unit: "cup")
-            ],
-            steps: [
-                CookingStep(orderIndex: 0, stepDescription: "Mix ingredients", durationMinutes: 5),
-                CookingStep(orderIndex: 1, stepDescription: "Bake", durationMinutes: 30)
-            ],
-            notes: "Test notes"
-        ))
+        EditRecipeView(
+            recipe: Recipe(
+                name: "Test Recipe",
+                recipeDescription: "A test recipe description",
+                ingredients: [
+                    Ingredient(name: "Flour", amount: 2, unit: "cups"),
+                    Ingredient(name: "Sugar", amount: 1, unit: "cup")
+                ],
+                steps: [
+                    CookingStep(orderIndex: 0, stepDescription: "Mix ingredients", durationMinutes: 5),
+                    CookingStep(orderIndex: 1, stepDescription: "Bake", durationMinutes: 30)
+                ],
+                notes: "Test notes"
+            ),
+            onDelete: {}
+        )
     }
 }
