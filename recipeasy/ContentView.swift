@@ -16,7 +16,6 @@ struct ContentView: View {
         order: .reverse,
         animation: .default
     ) private var recipes: [Recipe]
-    @State private var showingAddRecipe = false
     @State private var showingSettings = false
     @State private var addRecipeSheet: AddRecipeSheet?
 
@@ -78,22 +77,11 @@ struct ContentView: View {
                 }
                 .presentationDragIndicator(.visible)
             }
+            .sheet(isPresented: $showingSettings) {
+                SettingsView()
+            }
         } detail: {
             Text("Select a recipe")
-        }
-        .sheet(item: $addRecipeSheet) { sheet in
-            NavigationStack {
-                switch sheet {
-                case .manual:
-                    AddRecipeView()
-                case .ai:
-                    GenerateRecipeView()
-                }
-            }
-            .presentationDragIndicator(.visible)
-        }
-        .sheet(isPresented: $showingSettings) {
-            SettingsView()
         }
     }
     

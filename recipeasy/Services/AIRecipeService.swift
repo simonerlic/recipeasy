@@ -1,5 +1,5 @@
 //
-//  AIRecipeError.swift
+//  AIRecipeService.swift
 //  recipeasy
 //
 //  Created by Simon Erlic on 2024-11-18.
@@ -30,7 +30,7 @@ struct AIRecipeService {
         
         let messages = [
             ["role": "system", "content": """
-            You are a helpful cooking assistant. Generate detailed recipes with exact measurements, step-by-step instructions, and cooking tips.
+            You are a helpful cooking assistant. Generate detailed recipes with exact measurements, step-by-step instructions, difficulty ratings, and cooking tips.
             Respond in the following JSON format:
             {
                 "name": "Recipe Name",

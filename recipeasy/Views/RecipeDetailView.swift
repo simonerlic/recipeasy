@@ -11,7 +11,7 @@ struct TimeChip: View {
     let minutes: Int
     
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 8) {
             Image(systemName: "clock.fill")
                 .font(.caption)
             Text(formatDuration(minutes: minutes))
@@ -40,7 +40,7 @@ struct DifficultyChip: View {
     let recipe: Recipe
     
     var body: some View {
-        Text(recipe.difficulty.rawValue)
+        Label(recipe.difficulty.rawValue, systemImage: "chart.bar.fill")
             .font(.caption)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
@@ -178,12 +178,21 @@ struct IngredientsView: View {
                 HStack(alignment: .top, spacing: 12) {
                     Text("•")
                     VStack(alignment: .leading) {
-                        Text("\(formatAmount(ingredient.amount)) \(ingredient.unit) \(ingredient.name)")
+                        Text("\(ingredient.name)")
+                        Text("\(formatAmount(ingredient.amount)) \(ingredient.unit)")
+                            .font(.footnote)
                         
+                        Spacer()
+                        
+                        // check if notes is present or nonempty
                         if let notes = ingredient.notes {
-                            Text("(\(notes))")
-                                .foregroundStyle(.secondary)
-                                .font(.callout)
+                            if notes.isEmpty {
+                                EmptyView()
+                            } else {
+                                Text("\(notes)")
+                                    .foregroundStyle(.secondary)
+                                    .font(.callout)
+                            }
                         }
                     }
                     Spacer()
