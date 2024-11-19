@@ -78,7 +78,7 @@ struct EditRecipeView: View {
             }
             
             Section(header: Text("Ingredients")) {
-                ForEach(recipe.ingredients) { ingredient in
+                ForEach(recipe.ingredients, id: \.id) { ingredient in
                     IngredientRowEdit(ingredient: ingredient)
                 }
                 .onDelete { indices in
@@ -93,9 +93,9 @@ struct EditRecipeView: View {
                     Label("Add Ingredient", systemImage: "plus.circle")
                 }
             }
-            
+
             Section(header: Text("Steps")) {
-                ForEach(recipe.steps.sorted { $0.orderIndex < $1.orderIndex }) { step in
+                ForEach(recipe.steps.sorted { $0.orderIndex < $1.orderIndex }, id: \.id) { step in
                     StepRowEdit(step: step)
                 }
                 .onMove { indices, newOffset in

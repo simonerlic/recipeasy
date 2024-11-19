@@ -17,10 +17,23 @@ struct ContentView: View {
         animation: .default
     ) private var recipes: [Recipe]
     @State private var showingAddRecipe = false
+    @State private var showingSettings = false
+    @State private var addRecipeSheet: AddRecipeSheet?
+
+    enum AddRecipeSheet: Identifiable {
+        case manual, ai
+        
+        var id: Int {
+            switch self {
+            case .manual: return 1
+            case .ai: return 2
+            }
+        }
+    }
     
     var body: some View {
         NavigationSplitView {
-            ScrollView {
+            ScrollView(.vertical) {
                 LazyVStack(spacing: 16) {
                     ForEach(recipes) { recipe in
                         NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
@@ -33,20 +46,54 @@ struct ContentView: View {
             }
             .navigationTitle("My Recipes")
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showingAddRecipe = true }) {
-                        Label("Add Recipe", systemImage: "plus")
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        showingSettings = true
+                    } label: {
+                        Label("Settings", systemImage: "gear")
                     }
                 }
+                            
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Menu {
+                        Button(action: { addRecipeSheet = .manual }) {
+                            Label("Manual Entry", systemImage: "square.and.pencil")
+                        }
+                        Button(action: { addRecipeSheet = .ai }) {
+                            Label("AI Generator", systemImage: "wand.and.stars")
+                        }
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+            .sheet(item: $addRecipeSheet) { sheet in
+                NavigationStack {
+                    switch sheet {
+                    case .manual:
+                        AddRecipeView()
+                    case .ai:
+                        GenerateRecipeView()
+                    }
+                }
+                .presentationDragIndicator(.visible)
             }
         } detail: {
             Text("Select a recipe")
         }
-        .sheet(isPresented: $showingAddRecipe) {
+        .sheet(item: $addRecipeSheet) { sheet in
             NavigationStack {
-                AddRecipeView()
+                switch sheet {
+                case .manual:
+                    AddRecipeView()
+                case .ai:
+                    GenerateRecipeView()
+                }
             }
             .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $showingSettings) {
+            SettingsView()
         }
     }
     

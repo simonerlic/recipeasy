@@ -19,8 +19,10 @@ struct recipeasyApp: App {
             let schema = Schema([
                 Recipe.self,
                 Ingredient.self,
-                CookingStep.self
+                CookingStep.self,
+                RecipeAttempt.self
             ])
+            
             let modelConfiguration = ModelConfiguration(
                 schema: schema,
                 isStoredInMemoryOnly: false,
@@ -35,7 +37,7 @@ struct recipeasyApp: App {
             fatalError("Could not initialize ModelContainer: \(error)")
         }
     }
-
+    
     var body: some Scene {
         WindowGroup {
             ContentView()

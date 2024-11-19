@@ -67,6 +67,14 @@ struct RecipeDetailView: View {
     @State private var completedSteps: Set<Int> = []
     @State private var showingEditSheet = false
     
+    private var uniqueIngredients: [Ingredient] {
+        Array(Set(recipe.ingredients))
+    }
+    
+    private var uniqueSteps: [CookingStep] {
+        Array(Set(recipe.steps))
+    }
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -88,13 +96,12 @@ struct RecipeDetailView: View {
                 
                 if !recipe.ingredients.isEmpty {
                     SectionHeader(title: "Ingredients")
-                    IngredientsView(ingredients: recipe.ingredients)
+                    IngredientsView(ingredients: uniqueIngredients)
                 }
                 
                 if !recipe.steps.isEmpty {
                     SectionHeader(title: "Steps")
-                    StepsView(steps: recipe.steps.sorted { $0.orderIndex < $1.orderIndex },
-                            completedSteps: $completedSteps)
+                    StepsView(steps: uniqueSteps, completedSteps: $completedSteps)
                 }
                 
                 CookingHistoryView(recipe: recipe)
@@ -166,23 +173,31 @@ struct IngredientsView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ForEach(ingredients) { ingredient in
-                HStack(spacing: 8) {
+            // Use ingredient.id.uuidString to ensure truly unique identifiers
+            ForEach(ingredients.sorted { $0.id.uuidString < $1.id.uuidString }, id: \.id.uuidString) { ingredient in
+                HStack(alignment: .top, spacing: 12) {
                     Text("•")
-                        .baselineOffset(2)
-                    
-                    Text("\(ingredient.amount, specifier: "%.1f") \(ingredient.unit) \(ingredient.name)")
-                    
-                    if let notes = ingredient.notes {
-                        Text("(\(notes))")
-                            .foregroundStyle(.secondary)
-                            .font(.callout)
+                    VStack(alignment: .leading) {
+                        Text("\(formatAmount(ingredient.amount)) \(ingredient.unit) \(ingredient.name)")
+                        
+                        if let notes = ingredient.notes {
+                            Text("(\(notes))")
+                                .foregroundStyle(.secondary)
+                                .font(.callout)
+                        }
                     }
-                    
                     Spacer()
                 }
             }
         }
+    }
+    
+    private func formatAmount(_ value: Double) -> String {
+        if value.truncatingRemainder(dividingBy: 1) == 0 {
+            return String(format: "%.0f", value)
+        }
+        return String(format: "%.2f", value)
+            .replacingOccurrences(of: #"\.?0+$"#, with: "", options: .regularExpression)
     }
 }
 
@@ -192,7 +207,8 @@ struct StepsView: View {
     
     var body: some View {
         VStack(spacing: 12) {
-            ForEach(steps) { step in
+            // Sort by orderIndex first, then use id.uuidString as the unique identifier
+            ForEach(steps.sorted { $0.orderIndex < $1.orderIndex }, id: \.id.uuidString) { step in
                 CardView {
                     StepItemView(
                         step: step,
