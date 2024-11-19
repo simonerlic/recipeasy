@@ -5,7 +5,8 @@ struct GenerateRecipeView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
     
-    @AppStorage("OPENAI_API_KEY") private var apiKey = ""
+    @AppStorage("OPENAI_API_KEY") private var userApiKey = ""
+    @StateObject private var subscriptionService = SubscriptionService.shared
     
     @State private var prompt = ""
     @State private var isGenerating = false
@@ -14,6 +15,7 @@ struct GenerateRecipeView: View {
     @State private var generatedRecipe: Recipe?
     @State private var selectedSuggestion: String?
     @State private var showConfetti = false
+    @State private var showingSubscription = false
     
     private let suggestions = [
         (icon: "🍝", text: "A healthy vegetarian pasta dish", color: Color.green),
@@ -23,11 +25,18 @@ struct GenerateRecipeView: View {
         (icon: "🥗", text: "A protein-rich breakfast bowl", color: Color.blue)
     ]
     
+    // Your app's API key for subscribers
+    private let subscriberApiKey = "your-api-key-here" // Replace with your actual API key
+    
+    private var activeApiKey: String {
+        subscriptionService.hasActiveSubscription ? subscriberApiKey : userApiKey
+    }
+    
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
-                    if apiKey.isEmpty {
+                    if !subscriptionService.hasActiveSubscription && userApiKey.isEmpty {
                         setupRequiredView
                     } else {
                         if let recipe = generatedRecipe {
@@ -54,35 +63,52 @@ struct GenerateRecipeView: View {
             } message: {
                 Text(error?.localizedDescription ?? "An unknown error occurred")
             }
+            .sheet(isPresented: $showingSubscription) {
+                SubscriptionView()
+            }
         }
     }
     
     private var setupRequiredView: some View {
         VStack(spacing: 20) {
-            Image(systemName: "key.fill")
+            Image(systemName: "wand.and.stars")
                 .font(.system(size: 40))
                 .foregroundStyle(.secondary)
                 .padding()
                 .background(Color.secondary.opacity(0.1))
                 .clipShape(Circle())
             
-            Text("OpenAI API Key Required")
+            Text("AI Generation Setup Required")
                 .font(.title2.bold())
             
-            Text("To use the AI recipe generator, you'll need to set up your OpenAI API key in Settings. Don't worry, it only takes a minute!")
+            Text("To use the AI recipe generator, you'll need to either subscribe or provide your own OpenAI API key.")
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
             
-            Button {
-                dismiss()
-            } label: {
-                Label("Open Settings", systemImage: "gear")
-                    .font(.headline)
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.accentColor)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            VStack(spacing: 12) {
+                Button {
+                    showingSubscription = true
+                } label: {
+                    Label("Subscribe Now", systemImage: "star.fill")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                
+                Button {
+                    dismiss()
+                } label: {
+                    Label("Use My Own API Key", systemImage: "key")
+                        .font(.headline)
+                        .foregroundStyle(.blue)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue.opacity(0.1))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
             }
             .padding(.top)
         }
@@ -261,7 +287,7 @@ struct GenerateRecipeView: View {
         
         Task {
             do {
-                let service = AIRecipeService(apiKey: apiKey)
+                let service = AIRecipeService(apiKey: activeApiKey)
                 let recipe = try await service.generateRecipe(prompt: prompt)
                 
                 await MainActor.run {

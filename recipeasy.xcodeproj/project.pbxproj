@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D7A304F22CEC4A5100E9A327 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D7A304F12CEC4A5100E9A327 /* StoreKit.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		D73062DB2CE979AC008EC861 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +31,7 @@
 		D73062C82CE979AA008EC861 /* recipeasy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = recipeasy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D73062DA2CE979AC008EC861 /* recipeasyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = recipeasyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D73062E42CE979AC008EC861 /* recipeasyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = recipeasyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D7A304F12CEC4A5100E9A327 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -52,6 +57,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D7A304F22CEC4A5100E9A327 /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +84,7 @@
 				D73062CA2CE979AA008EC861 /* recipeasy */,
 				D73062DD2CE979AC008EC861 /* recipeasyTests */,
 				D73062E72CE979AC008EC861 /* recipeasyUITests */,
+				D7A304F02CEC4A5100E9A327 /* Frameworks */,
 				D73062C92CE979AA008EC861 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +97,14 @@
 				D73062E42CE979AC008EC861 /* recipeasyUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D7A304F02CEC4A5100E9A327 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D7A304F12CEC4A5100E9A327 /* StoreKit.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -393,6 +408,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = recipeasy/recipeasy.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"recipeasy/Preview Content\"";
@@ -424,6 +440,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = recipeasy/recipeasy.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"recipeasy/Preview Content\"";
