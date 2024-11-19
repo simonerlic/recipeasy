@@ -1,0 +1,9 @@
+//
+//  ImagePicker.swift
+//  recipeasy
+//
+//  Created by Simon Erlic on 2024-11-17.
+//
+
+
+import SwiftUIimport PhotosUIstruct ImagePicker: View {    @Binding var imageData: Data?    let title: String        @State private var selectedItem: PhotosPickerItem?        var body: some View {        VStack {            if let imageData = imageData,               let uiImage = UIImage(data: imageData) {                Image(uiImage: uiImage)                    .resizable()                    .scaledToFit()                    .clipShape(RoundedRectangle(cornerRadius: 8))                                Button(role: .destructive) {                    self.imageData = nil                } label: {                    Label("Remove Image", systemImage: "trash")                }                .padding(.top, 8)            }                        PhotosPicker(selection: $selectedItem,                        matching: .images,                        photoLibrary: .shared()) {                Label(imageData == nil ? "Add \(title)" : "Change \(title)",                      systemImage: "photo")            }        }        .onChange(of: selectedItem) { old, new in            Task {                if let data = try? await new?.loadTransferable(type: Data.self) {                    // Compress image if needed                    if let image = UIImage(data: data),                       let compressedData = image.jpegData(compressionQuality: 0.7) {                        imageData = compressedData                    } else {                        imageData = data                    }                }                selectedItem = nil            }        }    }}
