@@ -96,7 +96,7 @@ struct AIRecipeService {
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         
         let requestBody = [
-            "model": "gpt-4",
+            "model": "gpt-4o-mini",
             "messages": messages,
             "temperature": 0.7,
             "max_tokens": 1000,

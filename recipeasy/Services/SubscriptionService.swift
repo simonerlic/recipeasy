@@ -17,7 +17,7 @@ class SubscriptionService: ObservableObject {
     
     private var updateListenerTask: Task<Void, Error>?
     
-    private let subscriptionGroupID = "your.app.group.id" // Replace with your subscription group ID
+    private let subscriptionGroupID = "prosubscription"
     
     init() {
         updateListenerTask = listenForTransactions()

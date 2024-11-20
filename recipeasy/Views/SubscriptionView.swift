@@ -32,6 +32,7 @@ struct SubscriptionView: View {
                         Text("Subscribe to generate unlimited AI recipes without needing your own API key")
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.secondary)
+                            .padding(.horizontal, 16)
                     }
                     .padding(.top)
                     
