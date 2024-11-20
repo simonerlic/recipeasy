@@ -122,6 +122,7 @@ struct GenerateRecipeView: View {
             
             TextField("Describe your ideal recipe...", text: $prompt, axis: .vertical)
                 .lineLimit(1...6)
+                .disabled(isGenerating)
             
             if !prompt.isEmpty {
                 generateButton
