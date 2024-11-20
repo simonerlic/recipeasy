@@ -18,6 +18,7 @@ struct ContentView: View {
     ) private var recipes: [Recipe]
     @State private var showingSettings = false
     @State private var addRecipeSheet: AddRecipeSheet?
+    @State private var showingImportModal = false
 
     enum AddRecipeSheet: Identifiable {
         case manual, ai
@@ -61,6 +62,15 @@ struct ContentView: View {
                         Button(action: { addRecipeSheet = .ai }) {
                             Label("AI Generator", systemImage: "wand.and.stars")
                         }
+                        Menu {
+                            Button(action: { showingImportModal = true }) {
+                                Label("Recipe Website", systemImage: "link")
+                            }
+                            // Add more import options here in the future
+                            // e.g. PDF, Photos, etc.
+                        } label: {
+                            Label("Import from...", systemImage: "square.and.arrow.down")
+                        }
                     } label: {
                         Image(systemName: "plus")
                     }
@@ -79,6 +89,10 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showingSettings) {
                 SettingsView()
+            }
+            .sheet(isPresented: $showingImportModal) {
+                ImportRecipeView()
+                    .presentationDetents([.medium])
             }
         } detail: {
             Text("Select a recipe")
