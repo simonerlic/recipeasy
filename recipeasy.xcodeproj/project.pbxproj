@@ -34,9 +34,22 @@
 		D7A304F12CEC4A5100E9A327 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D7A304F52CEC544200E9A327 /* Exceptions for "recipeasy" folder in "recipeasy" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D73062C72CE979AA008EC861 /* recipeasy */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D73062CA2CE979AA008EC861 /* recipeasy */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D7A304F52CEC544200E9A327 /* Exceptions for "recipeasy" folder in "recipeasy" target */,
+			);
 			path = recipeasy;
 			sourceTree = "<group>";
 		};
@@ -415,6 +428,7 @@
 				DEVELOPMENT_TEAM = KW38PQP7BK;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = recipeasy/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Recipeasy;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.food-and-drink";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -447,6 +461,7 @@
 				DEVELOPMENT_TEAM = KW38PQP7BK;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = recipeasy/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Recipeasy;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.food-and-drink";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

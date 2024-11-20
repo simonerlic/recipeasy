@@ -67,6 +67,9 @@ struct RecipeDetailView: View {
     @State private var completedSteps: Set<Int> = []
     @State private var showingEditSheet = false
     
+    @State private var isShowingShareSheet = false
+    @State private var shareItems: [Any] = []
+    
     private var uniqueIngredients: [Ingredient] {
         Array(Set(recipe.ingredients))
     }
@@ -118,6 +121,12 @@ struct RecipeDetailView: View {
         .navigationTitle("")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: shareRecipe) {
+                    Image(systemName: "square.and.arrow.up")
+                }
+            }
+            
+            ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: { showingEditSheet = true }) {
                     Text("Edit")
                 }
@@ -130,6 +139,23 @@ struct RecipeDetailView: View {
                 })
             }
             .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $isShowingShareSheet) {
+            ShareView(recipe: recipe)
+                .presentationDragIndicator(.visible)
+        }
+    }
+}
+
+extension RecipeDetailView {
+    private func shareRecipe() {
+        if let url = RecipeShareManager.createShareURL(for: recipe) {
+            let shareText = """
+            Check out this recipe for \(recipe.name)!
+            Open in Recipeasy: \(url.absoluteString)
+            """
+            isShowingShareSheet = true
+            shareItems = [shareText]
         }
     }
 }

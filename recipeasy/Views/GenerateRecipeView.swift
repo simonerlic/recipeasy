@@ -25,8 +25,7 @@ struct GenerateRecipeView: View {
         (icon: "🥗", text: "A protein-rich breakfast bowl", color: Color.blue)
     ]
     
-    // Your app's API key for subscribers
-    private let subscriberApiKey = "your-api-key-here" // Replace with your actual API key
+    private let subscriberApiKey = "your-api-key-here" // Replace with API key
     
     private var activeApiKey: String {
         subscriptionService.hasActiveSubscription ? subscriberApiKey : userApiKey

@@ -5,8 +5,6 @@
 //  Created by Simon Erlic on 2024-11-16.
 //
 
-
-// recipeasyApp.swift
 import SwiftUI
 import SwiftData
 
