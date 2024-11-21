@@ -72,7 +72,11 @@
     {
       "id" : "A50306CC",
       "localizations" : [
-
+        {
+          "description" : "Genrate, import, and save unlimited recipes",
+          "displayName" : "Recipeasy Pro",
+          "locale" : "en_US"
+        }
       ],
       "name" : "Pro",
       "subscriptions" : [
@@ -83,9 +87,9 @@
           "codeOffers" : [
             {
               "eligibility" : [
-                "existing",
+                "expired",
                 "new",
-                "expired"
+                "existing"
               ],
               "internalID" : "E9B299FE",
               "isStackable" : true,
@@ -111,7 +115,7 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "prosubscription",
+          "productID" : "dev.serlic.recipeasypro",
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "Recipeasy Pro",
           "subscriptionGroupID" : "A50306CC",

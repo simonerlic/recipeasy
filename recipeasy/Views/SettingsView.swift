@@ -30,33 +30,39 @@ struct SettingsView: View {
                                         .padding(.top, 4)
                                 }
                             }
-                        }
-                    }
-                    
-                    if !subscriptionService.hasActiveSubscription {
-                        Section {
-                            VStack(alignment: .leading, spacing: 8) {
-                                if showingApiKey {
-                                    TextField("OpenAI API Key", text: $apiKey)
-                                        .textInputAutocapitalization(.never)
-                                        .autocorrectionDisabled()
-                                } else {
-                                    SecureField("OpenAI API Key", text: $apiKey)
-                                        .textInputAutocapitalization(.never)
-                                        .autocorrectionDisabled()
-                                }
-                                
-                                Toggle("Show API Key", isOn: $showingApiKey)
-                                    .toggleStyle(.switch)
-                                
-                                Link("Get an API key", destination: URL(string: "https://platform.openai.com/api-keys")!)
+                        } else {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Thanks for subscribing!")
+                                    .font(.headline)
+                                Text("Manage your subscription within the App Store.")
                                     .font(.caption)
+                                    .padding(.top, 4)
                             }
-                        } footer: {
-                            Text("Required for AI recipe generation if you're not subscribed. Your API key is stored securely on your device.")
                         }
                     }
-                    
+
+                    Section {
+                        VStack(alignment: .leading, spacing: 8) {
+                            if showingApiKey {
+                                TextField("OpenAI API Key", text: $apiKey)
+                                    .textInputAutocapitalization(.never)
+                                    .autocorrectionDisabled()
+                            } else {
+                                SecureField("OpenAI API Key", text: $apiKey)
+                                    .textInputAutocapitalization(.never)
+                                    .autocorrectionDisabled()
+                            }
+                            
+                            Toggle("Show API Key", isOn: $showingApiKey)
+                                .toggleStyle(.switch)
+                            
+                            Link("Get an API key", destination: URL(string: "https://platform.openai.com/api-keys")!)
+                                .font(.caption)
+                        }
+                    } footer: {
+                        Text("Required for AI recipe generation if you're not subscribed. Your API key is stored securely on your device.")
+                    }
+                
                     Section {
                         Label("Version 1.0.0", systemImage: "info.circle")
                             .foregroundStyle(.secondary)
