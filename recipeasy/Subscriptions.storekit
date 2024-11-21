@@ -83,9 +83,9 @@
           "codeOffers" : [
             {
               "eligibility" : [
-                "expired",
                 "existing",
-                "new"
+                "new",
+                "expired"
               ],
               "internalID" : "E9B299FE",
               "isStackable" : true,
@@ -98,7 +98,12 @@
           "familyShareable" : true,
           "groupNumber" : 1,
           "internalID" : "9F8C332A",
-          "introductoryOffer" : null,
+          "introductoryOffer" : {
+            "displayPrice" : "0.99",
+            "internalID" : "7A291757",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1M"
+          },
           "localizations" : [
             {
               "description" : "Generate unlimited recipes",

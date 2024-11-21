@@ -1,4 +1,27 @@
 import SwiftUI
+import Foundation
+
+public enum APIEnv {
+    enum Keys {
+        static let apiKey = "OPENAI_API_KEY"
+    }
+
+    private static let infoDictionary: [String: Any] = {
+        guard let dict = Bundle.main.infoDictionary else {
+            fatalError("plist file not found" )
+        }
+        return dict
+    } ()
+
+    static let apiKey: String = {
+        guard let apiKeyString = APIEnv.infoDictionary[Keys.apiKey] as?
+                String else {
+            fatalError("API Key not set in plist")
+        }
+        return apiKeyString
+    }()
+    
+}
 
 struct GenerateRecipeView: View {
     @Environment(\.modelContext) private var modelContext
@@ -25,7 +48,7 @@ struct GenerateRecipeView: View {
         (icon: "🥗", text: "A protein-rich breakfast bowl", color: Color.blue)
     ]
     
-    private let subscriberApiKey = "your-api-key-here" // Replace with API key
+    private let subscriberApiKey = APIEnv.apiKey
     
     private var activeApiKey: String {
         subscriptionService.hasActiveSubscription ? subscriberApiKey : userApiKey
