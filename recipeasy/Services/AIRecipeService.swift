@@ -54,56 +54,77 @@ struct AIRecipeService {
             throw AIRecipeError.invalidURL
         }
         
+        let systemPrompt = """
+        You are a helpful cooking assistant. Generate detailed recipes with exact measurements, step-by-step instructions, difficulty ratings, and cooking tips.
+        Follow the schema exactly and provide all required fields.
+        Ensure all measurements are precise with numeric values.
+        Keep step descriptions clear and concise.
+        Include relevant cooking tips in the notes field.
+        Use 'easy', 'medium', or 'hard' for difficulty levels.
+        """
+        
         let messages = [
-            ["role": "system", "content": """
-            You are a helpful cooking assistant. Generate detailed recipes with exact measurements, step-by-step instructions, difficulty ratings, and cooking tips.
-            Respond in the following JSON format:
-            {
-                "name": "Recipe Name",
-                "description": "Brief description",
-                "cookingTimeMinutes": 30,
-                "difficulty": "easy|medium|hard",
+            ["role": "system", "content": systemPrompt],
+            ["role": "user", "content": prompt]
+        ]
+        
+        // Define the JSON schema for the response
+        let jsonSchema: [String: Any] = [
+            "name": "recipe_response",
+            "type": "object",
+            "properties": [
+                "name": ["type": "string"],
+                "description": ["type": "string"],
+                "cookingTimeMinutes": ["type": "integer", "minimum": 1],
+                "difficulty": ["type": "string", "enum": ["easy", "medium", "hard"]],
                 "ingredients": [
-                    {
-                        "name": "Ingredient name",
-                        "amount": 2.0,
-                        "unit": "cups",
-                        "notes": "optional notes"
-                    }
+                    "type": "array",
+                    "items": [
+                        "type": "object",
+                        "properties": [
+                            "name": ["type": "string"],
+                            "amount": ["type": "number", "minimum": 0],
+                            "unit": ["type": "string"],
+                            "notes": ["type": ["string", "null"]]
+                        ],
+                        "required": ["name", "amount", "unit"]
+                    ]
                 ],
                 "steps": [
-                    {
-                        "orderIndex": 0,
-                        "description": "Step description",
-                        "durationMinutes": 5,
-                        "notes": "optional notes"
-                    }
+                    "type": "array",
+                    "items": [
+                        "type": "object",
+                        "properties": [
+                            "orderIndex": ["type": "integer", "minimum": 0],
+                            "description": ["type": "string"],
+                            "durationMinutes": ["type": ["integer", "null"], "minimum": 1],
+                            "notes": ["type": ["string", "null"]]
+                        ],
+                        "required": ["orderIndex", "description"]
+                    ]
                 ],
-                "notes": "Additional tips and notes"
-            }
-            
-            Ensure all measurements are precise and ingredient amounts are numeric values.
-            Keep step descriptions clear and concise.
-            Include relevant cooking tips and notes.
-            Adjust difficulty based on complexity and required skill level.
-            """],
-            ["role": "user", "content": prompt]
+                "notes": ["type": "string"]
+            ],
+            "required": ["name", "description", "cookingTimeMinutes", "difficulty", "ingredients", "steps", "notes"]
+        ]
+        
+        let requestBody: [String: Any] = [
+            "model": "gpt-4o-mini",
+            "messages": messages,
+            "temperature": 0.7,
+            "response_format": [
+                "type": "json_schema",
+                "json_schema": [
+                    "name": "recipe_response",
+                    "schema": jsonSchema
+                ]
+            ]
         ]
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        
-        let requestBody = [
-            "model": "gpt-4o-mini",
-            "messages": messages,
-            "temperature": 0.7,
-            "max_tokens": 1000,
-            "top_p": 1,
-            "frequency_penalty": 0,
-            "presence_penalty": 0
-        ] as [String: Any]
         
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
@@ -126,7 +147,6 @@ struct AIRecipeService {
                 case 500...599:
                     throw AIRecipeError.serverError
                 default:
-                    // Try to get error message from response
                     if let errorResponse = try? JSONDecoder().decode(OpenAIErrorResponse.self, from: data) {
                         throw AIRecipeError.apiError(errorResponse.error.message)
                     } else {
