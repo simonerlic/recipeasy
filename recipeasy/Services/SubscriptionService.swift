@@ -105,6 +105,13 @@ class SubscriptionService: ObservableObject {
     }
 }
 
+extension SubscriptionService {
+    func restorePurchases() async throws {
+        try? await AppStore.sync()
+        await updateCustomerProductStatus()
+    }
+}
+
 enum StoreError: Error {
     case failedVerification
     case unknownError

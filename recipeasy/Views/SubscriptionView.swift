@@ -28,11 +28,6 @@ struct SubscriptionView: View {
                         
                         Text("Unlock AI Recipe Generation")
                             .font(.title2.bold())
-                        
-                        Text("Subscribe to generate unlimited AI recipes without needing your own API key")
-                            .multilineTextAlignment(.center)
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal, 16)
                     }
                     .padding(.top)
                     
@@ -81,6 +76,30 @@ struct SubscriptionView: View {
                     .padding(.horizontal)
                     .disabled(selectedProduct == nil || isPurchasing)
                     .opacity(selectedProduct == nil ? 0.6 : 1.0)
+                    
+                    Button(action: {
+                        Task {
+                            do {
+                                try await subscriptionService.restorePurchases()
+                                if subscriptionService.hasActiveSubscription {
+                                    dismiss()
+                                }
+                            } catch {
+                                errorMessage = "Failed to restore purchases"
+                                showError = true
+                            }
+                        }
+                    }) {
+                        Text("Restore Purchases")
+                            .font(.headline)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color(.secondarySystemBackground))
+                            .foregroundStyle(.primary)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom)
                 }
             }
             .navigationTitle("Subscribe")
@@ -147,6 +166,9 @@ struct SubscriptionOption: View {
                 
                 Text(product.displayPrice)
                     .font(.headline)
+                
+                Text("/ mo")
+                    .font(.subheadline)
                 
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .foregroundStyle(isSelected ? .blue : .secondary)

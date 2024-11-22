@@ -19,6 +19,7 @@ struct ContentView: View {
     @State private var showingSettings = false
     @State private var addRecipeSheet: AddRecipeSheet?
     @State private var showingImportModal = false
+    @StateObject private var subscriptionService = SubscriptionService.shared
 
     enum AddRecipeSheet: Identifiable {
         case manual, ai
@@ -89,8 +90,14 @@ struct ContentView: View {
                 SettingsView()
             }
             .sheet(isPresented: $showingImportModal) {
-                ImportRecipeView()
-                    .presentationDetents([.medium])
+                if !subscriptionService.hasActiveSubscription {
+                    ImportRecipeView()
+                        .presentationDetents([.large])
+                } else {
+                    ImportRecipeView()
+                        .presentationDetents([.medium])
+                }
+                
             }
         } detail: {
             Text("Click the '+' button to add a new recipe, or select an existing one from the list.")

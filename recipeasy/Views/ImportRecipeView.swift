@@ -28,19 +28,50 @@ struct ImportRecipeView: View {
         NavigationStack {
             Form {
                 if !subscriptionService.hasActiveSubscription && apiKey.isEmpty {
-                    Section {
-                        VStack(alignment: .leading, spacing: 16) {
-                            Text("Setup Required")
-                                .font(.headline)
-                            Text("To import recipes from URLs, you'll need to either subscribe or provide your own OpenAI API key.")
-                            
-                            Button(action: { showingSubscription = true }) {
+                    VStack(spacing: 20) {
+                        Image(systemName: "wand.and.stars")
+                            .font(.system(size: 40))
+                            .foregroundStyle(.secondary)
+                            .padding()
+                            .background(Color.secondary.opacity(0.1))
+                            .clipShape(Circle())
+                        
+                        Text("AI Generation Setup Required")
+                            .font(.title2.bold())
+                        
+                        Text("To use the AI recipe generator, you'll need to either subscribe or provide your own OpenAI API key.")
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(.secondary)
+                        
+                        VStack(spacing: 12) {
+                            Button {
+                                showingSubscription = true
+                            } label: {
                                 Label("Subscribe Now", systemImage: "star.fill")
+                                    .font(.headline)
+                                    .foregroundStyle(.white)
                                     .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(Color.blue)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
-                            .buttonStyle(.borderedProminent)
+                            
+                            Button {
+                                dismiss()
+                            } label: {
+                                Label("Use My Own API Key", systemImage: "key")
+                                    .font(.headline)
+                                    .foregroundStyle(.blue)
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(Color.blue.opacity(0.1))
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                            }
                         }
+                        .padding(.top)
                     }
+                    .padding()
+                    .frame(maxWidth: 400)
                 } else {
                     Section {
                         TextField("Recipe URL", text: $url)
