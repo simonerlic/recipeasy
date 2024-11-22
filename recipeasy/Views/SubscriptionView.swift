@@ -15,6 +15,8 @@ struct SubscriptionView: View {
     @State private var isPurchasing = false
     @State private var showError = false
     @State private var errorMessage = ""
+    @State private var showingOfferCode = false
+
     
     var body: some View {
         NavigationStack {
@@ -100,6 +102,8 @@ struct SubscriptionView: View {
                     }
                     .padding(.horizontal)
                     .padding(.bottom)
+                    
+                    OfferCodeButton(isShowingOfferCode: $showingOfferCode)
                 }
             }
             .navigationTitle("Subscribe")
@@ -115,6 +119,9 @@ struct SubscriptionView: View {
                 Button("OK", role: .cancel) {}
             } message: {
                 Text(errorMessage)
+            }
+            .sheet(isPresented: $showingOfferCode) {
+                OfferCodeView()
             }
         }
     }

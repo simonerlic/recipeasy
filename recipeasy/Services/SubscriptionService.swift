@@ -17,7 +17,7 @@ class SubscriptionService: ObservableObject {
     
     private var updateListenerTask: Task<Void, Error>?
     
-    private let subscriptionGroupID = "dev.serlic.recipeasypro"
+    let subscriptionGroupID = "dev.serlic.recipeasypro"
     
     init() {
         updateListenerTask = listenForTransactions()
