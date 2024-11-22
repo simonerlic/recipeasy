@@ -93,7 +93,7 @@ struct ContentView: View {
                     .presentationDetents([.medium])
             }
         } detail: {
-            Text("Select a recipe")
+            Text("Click the '+' button to add a new recipe, or select an existing one from the list.")
         }
     }
     
