@@ -37,7 +37,6 @@ struct GenerateRecipeView: View {
     @State private var showingError = false
     @State private var generatedRecipe: Recipe?
     @State private var selectedSuggestion: String?
-    @State private var showConfetti = false
     @State private var showingSubscription = false
     
     private let suggestions = [
@@ -264,7 +263,7 @@ struct GenerateRecipeView: View {
             
             HStack(spacing: 16) {
                 Button(action: { generatedRecipe = nil }) {
-                    Label("Generate Another", systemImage: "arrow.counterclockwise")
+                    Label("Try Again", systemImage: "arrow.counterclockwise")
                         .font(.headline)
                         .padding()
                         .frame(maxWidth: .infinity)
@@ -274,7 +273,6 @@ struct GenerateRecipeView: View {
                 }
                 
                 Button {
-                    showConfetti = true
                     modelContext.insert(recipe)
                     // Delay the dismiss to allow confetti to show
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
@@ -295,13 +293,6 @@ struct GenerateRecipeView: View {
         .background(colorScheme == .dark ? Color(.secondarySystemBackground) : .white)
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .shadow(color: Color.black.opacity(0.1), radius: 10)
-        .overlay {
-            if showConfetti {
-                ConfettiView()
-                    .allowsHitTesting(false)
-                    .transition(.opacity)
-            }
-        }
     }
     
     private func generateRecipe() {
@@ -327,77 +318,6 @@ struct GenerateRecipeView: View {
                 }
             }
         }
-    }
-}
-
-struct ConfettiView: View {
-    @State private var isAnimating = false
-    
-    let colors: [Color] = [.red, .blue, .green, .yellow, .pink, .purple, .orange]
-    let confettiCount = 50
-    
-    var body: some View {
-        GeometryReader { geometry in
-            ForEach(0..<confettiCount, id: \.self) { index in
-                ConfettiPiece(
-                    color: colors[index % colors.count],
-                    size: geometry.size,
-                    index: index,
-                    isAnimating: isAnimating
-                )
-            }
-        }
-        .onAppear {
-            isAnimating = true
-        }
-    }
-}
-
-struct ConfettiPiece: View {
-    let color: Color
-    let size: CGSize
-    let index: Int
-    let isAnimating: Bool
-    
-    private var confettiShape: some View {
-        Group {
-            if Bool.random() {
-                RoundedRectangle(cornerRadius: 1)
-                    .foregroundStyle(color.opacity(Double.random(in: 0.6...1.0)))
-            } else {
-                Circle()
-                    .foregroundStyle(color.opacity(Double.random(in: 0.6...1.0)))
-            }
-        }
-    }
-    
-    var body: some View {
-        // Initial random position across the top of the screen
-        let randomX = Double.random(in: 0...size.width)
-        let randomSize = CGFloat.random(in: 5...10)
-        
-        // Gentle rotation
-        let rotationAngle = Double.random(in: -180...180)
-        
-        // Small horizontal drift for subtle movement
-        let smallDrift = Double.random(in: -20...20)
-        
-        // Shorter, more consistent fall duration
-        let fallDuration = Double.random(in: 2.5...3.0)
-        
-        confettiShape
-            .frame(width: randomSize, height: randomSize)
-            .position(x: randomX, y: -20)  // Start above the screen
-            .offset(
-                x: isAnimating ? smallDrift : 0,
-                y: isAnimating ? size.height + 40 : 0
-            )
-            .rotationEffect(.degrees(isAnimating ? rotationAngle : 0))
-            .animation(
-                .easeIn(duration: fallDuration)  // Changed to easeIn for slightly accelerating fall
-                .repeatForever(autoreverses: false),  // Continuous falling
-                value: isAnimating
-            )
     }
 }
 

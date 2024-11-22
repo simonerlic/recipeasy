@@ -66,8 +66,6 @@ struct ContentView: View {
                             Button(action: { showingImportModal = true }) {
                                 Label("Recipe Website", systemImage: "link")
                             }
-                            // Add more import options here in the future
-                            // e.g. PDF, Photos, etc.
                         } label: {
                             Label("Import from...", systemImage: "square.and.arrow.down")
                         }
