@@ -91,6 +91,7 @@ struct SettingsView: View {
                 Spacer()
                 Text("Made with ❤️ by Simon")
                     .font(.footnote)
+                    .padding(.vertical)
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)

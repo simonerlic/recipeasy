@@ -38,6 +38,7 @@ struct GenerateRecipeView: View {
     @State private var generatedRecipe: Recipe?
     @State private var selectedSuggestion: String?
     @State private var showingSubscription = false
+    @State private var showingSettings = false
     
     private let suggestions = [
         (icon: "🍝", text: "A healthy vegetarian pasta dish", color: Color.green),
@@ -58,7 +59,11 @@ struct GenerateRecipeView: View {
             ScrollView {
                 VStack(spacing: 24) {
                     if !subscriptionService.hasActiveSubscription && userApiKey.isEmpty {
-                        setupRequiredView
+                        APISetupView(
+                            showingSettings: $showingSettings,
+                            showingSubscription: $showingSubscription
+                        )
+                        .navigationTitle("Setup Required")
                     } else {
                         if let recipe = generatedRecipe {
                             recipeResultView(recipe)
@@ -79,62 +84,13 @@ struct GenerateRecipeView: View {
                     }
                 }
             }
-            .alert("Error", isPresented: $showingError) {
-                Button("OK", action: {})
-            } message: {
-                Text(error?.localizedDescription ?? "An unknown error occurred")
-            }
             .sheet(isPresented: $showingSubscription) {
                 SubscriptionView()
             }
-        }
-    }
-    
-    private var setupRequiredView: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "wand.and.stars")
-                .font(.system(size: 40))
-                .foregroundStyle(.secondary)
-                .padding()
-                .background(Color.secondary.opacity(0.1))
-                .clipShape(Circle())
-            
-            Text("AI Generation Setup Required")
-                .font(.title2.bold())
-            
-            Text("To use the AI recipe generator, you'll need to either subscribe or provide your own OpenAI API key.")
-                .multilineTextAlignment(.center)
-                .foregroundStyle(.secondary)
-            
-            VStack(spacing: 12) {
-                Button {
-                    showingSubscription = true
-                } label: {
-                    Label("Subscribe Now", systemImage: "star.fill")
-                        .font(.headline)
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-                
-                Button {
-                    dismiss()
-                } label: {
-                    Label("Use My Own API Key", systemImage: "key")
-                        .font(.headline)
-                        .foregroundStyle(.blue)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue.opacity(0.1))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
+            .sheet(isPresented: $showingSettings) {
+                SettingsView()
             }
-            .padding(.top)
         }
-        .padding()
-        .frame(maxWidth: 400)
     }
     
     private var promptInputSection: some View {

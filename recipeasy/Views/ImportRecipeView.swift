@@ -5,13 +5,12 @@
 //  Created by Simon Erlic on 2024-11-20.
 //
 
-
 import SwiftUI
 
 struct ImportRecipeView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    @AppStorage("OPENAI_API_KEY") private var apiKey = ""
+    @AppStorage("OPENAI_API_KEY") private var userApiKey = ""
     @StateObject private var subscriptionService = SubscriptionService.shared
     
     @State private var url = ""
@@ -19,60 +18,32 @@ struct ImportRecipeView: View {
     @State private var error: Error?
     @State private var showingError = false
     @State private var showingSubscription = false
+    @State private var showingSettings = false
+    
+    private let subscriberApiKey = APIEnv.apiKey
     
     private var activeApiKey: String {
-        subscriptionService.hasActiveSubscription ? "your-api-key-here" : apiKey
+        subscriptionService.hasActiveSubscription ? subscriberApiKey : userApiKey
     }
     
     var body: some View {
         NavigationStack {
-            Form {
-                if !subscriptionService.hasActiveSubscription && apiKey.isEmpty {
-                    VStack(spacing: 20) {
-                        Image(systemName: "wand.and.stars")
-                            .font(.system(size: 40))
-                            .foregroundStyle(.secondary)
-                            .padding()
-                            .background(Color.secondary.opacity(0.1))
-                            .clipShape(Circle())
-                        
-                        Text("AI Generation Setup Required")
-                            .font(.title2.bold())
-                        
-                        Text("To use the AI recipe generator, you'll need to either subscribe or provide your own OpenAI API key.")
-                            .multilineTextAlignment(.center)
-                            .foregroundStyle(.secondary)
-                        
-                        VStack(spacing: 12) {
-                            Button {
-                                showingSubscription = true
-                            } label: {
-                                Label("Subscribe Now", systemImage: "star.fill")
-                                    .font(.headline)
-                                    .foregroundStyle(.white)
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .background(Color.blue)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                            }
-                            
-                            Button {
-                                dismiss()
-                            } label: {
-                                Label("Use My Own API Key", systemImage: "key")
-                                    .font(.headline)
-                                    .foregroundStyle(.blue)
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .background(Color.blue.opacity(0.1))
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                            }
+            if !subscriptionService.hasActiveSubscription && userApiKey.isEmpty {
+                APISetupView(
+                    showingSettings: $showingSettings,
+                    showingSubscription: $showingSubscription
+                )
+                .navigationTitle("Setup Required")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button("Cancel") {
+                            dismiss()
                         }
-                        .padding(.top)
                     }
-                    .padding()
-                    .frame(maxWidth: 400)
-                } else {
+                }
+            } else {
+                Form {
                     Section {
                         TextField("Recipe URL", text: $url)
                             .autocorrectionDisabled()
@@ -93,26 +64,35 @@ struct ImportRecipeView: View {
                     }
                 }
             }
-            .navigationTitle("Import Recipe")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Import") {
-                        Task {
-                            await importRecipe()
-                        }
-                    }
-                    .disabled(url.isEmpty || isLoading || (!subscriptionService.hasActiveSubscription && apiKey.isEmpty))
+            
+            Spacer()
+        }
+        .navigationTitle("Import Recipe")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button("Cancel") {
+                    dismiss()
                 }
             }
-            .sheet(isPresented: $showingSubscription) {
+            
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button("Import") {
+                    Task {
+                        await importRecipe()
+                    }
+                }
+                .disabled(url.isEmpty || isLoading || (!subscriptionService.hasActiveSubscription && userApiKey.isEmpty))
+            }
+        }
+        .sheet(isPresented: $showingSubscription) {
+            NavigationStack {
                 SubscriptionView()
+            }
+        }
+        .sheet(isPresented: $showingSettings) {
+            NavigationStack {
+                SettingsView()
             }
         }
         .alert("Import Error", isPresented: $showingError) {

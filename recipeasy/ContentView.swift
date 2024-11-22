@@ -93,9 +93,11 @@ struct ContentView: View {
                 if !subscriptionService.hasActiveSubscription {
                     ImportRecipeView()
                         .presentationDetents([.large])
+                        .presentationDragIndicator(.visible)
                 } else {
                     ImportRecipeView()
                         .presentationDetents([.medium])
+                        .presentationDragIndicator(.visible)
                 }
                 
             }
