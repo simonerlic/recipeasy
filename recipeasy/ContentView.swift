@@ -90,16 +90,10 @@ struct ContentView: View {
                 SettingsView()
             }
             .sheet(isPresented: $showingImportModal) {
-                if !subscriptionService.hasActiveSubscription {
+                NavigationStack {
                     ImportRecipeView()
-                        .presentationDetents([.large])
-                        .presentationDragIndicator(.visible)
-                } else {
-                    ImportRecipeView()
-                        .presentationDetents([.medium])
-                        .presentationDragIndicator(.visible)
+                         .presentationDetents([.large])
                 }
-                
             }
         } detail: {
             Text("Click the '+' button to add a new recipe, or select an existing one from the list.")
