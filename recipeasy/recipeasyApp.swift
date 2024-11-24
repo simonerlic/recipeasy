@@ -34,12 +34,18 @@ struct recipeasyApp: App {
         } catch {
             fatalError("Could not initialize ModelContainer: \(error)")
         }
+        Task {
+            await SubscriptionService.shared.updateSubscriptionStatus()
+        }
     }
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .modelContainer(sharedModelContainer)
+                .task {
+                    await SubscriptionService.shared.updateSubscriptionStatus()
+                }
         }
     }
 }

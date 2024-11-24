@@ -92,16 +92,18 @@ final class CookingStep {
     var notes: String?
     var recipe: Recipe?
     var imageData: Data?
+    var isCompleted: Bool // Add this property
     
     var hasImage: Bool { imageData != nil }
     
     init(
-        id: UUID = UUID(), // Provide default value
+        id: UUID = UUID(),
         orderIndex: Int = 0,
         stepDescription: String = "",
         durationMinutes: Int? = nil,
         notes: String? = nil,
-        imageData: Data? = nil
+        imageData: Data? = nil,
+        isCompleted: Bool = false // Add default value
     ) {
         self.id = id
         self.orderIndex = orderIndex
@@ -109,6 +111,7 @@ final class CookingStep {
         self.durationMinutes = durationMinutes
         self.notes = notes
         self.imageData = imageData
+        self.isCompleted = isCompleted
     }
 }
 

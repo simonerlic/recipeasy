@@ -51,14 +51,25 @@ struct GenerateRecipeView: View {
     private let subscriberApiKey = APIEnv.apiKey
     
     private var activeApiKey: String {
-        subscriptionService.hasActiveSubscription ? subscriberApiKey : userApiKey
+        switch subscriptionService.subscriptionStatus {
+        case .subscribed:
+            return subscriberApiKey
+        case .notSubscribed:
+            return userApiKey
+        case .unknown:
+            // If status is unknown, we should try to refresh it
+            Task {
+                await subscriptionService.updateSubscriptionStatus()
+            }
+            return userApiKey.isEmpty ? subscriberApiKey : userApiKey
+        }
     }
     
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
-                    if !subscriptionService.hasActiveSubscription && userApiKey.isEmpty {
+                    if subscriptionService.subscriptionStatus == .notSubscribed && userApiKey.isEmpty {
                         APISetupView(
                             showingSettings: $showingSettings,
                             showingSubscription: $showingSubscription
@@ -91,7 +102,12 @@ struct GenerateRecipeView: View {
                 SettingsView()
             }
         }
+        .task {
+            // Refresh subscription status when view appears
+            await subscriptionService.updateSubscriptionStatus()
+        }
     }
+    
     
     private var promptInputSection: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -257,6 +273,9 @@ struct GenerateRecipeView: View {
         
         Task {
             do {
+                // First ensure subscription status is up to date
+                await subscriptionService.updateSubscriptionStatus()
+                
                 let service = AIRecipeService(apiKey: activeApiKey)
                 let recipe = try await service.generateRecipe(prompt: prompt)
                 

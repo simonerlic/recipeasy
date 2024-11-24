@@ -103,8 +103,18 @@ struct RecipeDetailView: View {
                 }
                 
                 if !recipe.steps.isEmpty {
-                    SectionHeader(title: "Steps")
-                    StepsView(steps: uniqueSteps, completedSteps: $completedSteps)
+                    SectionHeader(title: "Steps") {
+                        if recipe.steps.contains(where: { $0.isCompleted }) {
+                            Button(action: resetSteps) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "arrow.counterclockwise")
+                                    Text("Reset")
+                                }
+                                .foregroundColor(.blue)
+                            }
+                        }
+                    }
+                    StepsView(steps: uniqueSteps)
                 }
                 
                 CookingHistoryView(recipe: recipe)
@@ -121,12 +131,6 @@ struct RecipeDetailView: View {
         .navigationTitle("")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: shareRecipe) {
-                    Image(systemName: "square.and.arrow.up")
-                }
-            }
-            
-            ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: { showingEditSheet = true }) {
                     Text("Edit")
                 }
@@ -135,7 +139,7 @@ struct RecipeDetailView: View {
         .sheet(isPresented: $showingEditSheet) {
             NavigationStack {
                 EditRecipeView(recipe: recipe, onDelete: {
-                    dismiss()  // This will dismiss the RecipeDetailView
+                    dismiss()
                 })
             }
             .presentationDragIndicator(.visible)
@@ -143,6 +147,14 @@ struct RecipeDetailView: View {
         .sheet(isPresented: $isShowingShareSheet) {
             ShareView(recipe: recipe)
                 .presentationDragIndicator(.visible)
+        }
+    }
+    
+    private func resetSteps() {
+        withAnimation {
+            for step in recipe.steps {
+                step.isCompleted = false
+            }
         }
     }
 }
@@ -160,15 +172,36 @@ extension RecipeDetailView {
     }
 }
 
-struct SectionHeader: View {
+struct SectionHeader<Trailing: View>: View {
     let title: String
+    @ViewBuilder let trailing: () -> Trailing
+    
+    init(title: String, @ViewBuilder trailing: @escaping () -> Trailing) {
+        self.title = title
+        self.trailing = trailing
+    }
     
     var body: some View {
-        Text(title)
-            .font(.title3 .bold())
-            .foregroundStyle(.primary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.top, 8)
+        HStack {
+            Text(title)
+                .font(.title3.bold())
+                .foregroundStyle(.primary)
+            
+            Spacer()
+            
+            trailing()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.top, 8)
+    }
+}
+
+// Convenience initializer for when there's no trailing content
+extension SectionHeader where Trailing == EmptyView {
+    init(title: String) {
+        self.init(title: title) {
+            EmptyView()
+        }
     }
 }
 
@@ -238,23 +271,12 @@ struct IngredientsView: View {
 
 struct StepsView: View {
     let steps: [CookingStep]
-    @Binding var completedSteps: Set<Int>
     
     var body: some View {
         VStack(spacing: 12) {
-            // Sort by orderIndex first, then use id.uuidString as the unique identifier
             ForEach(steps.sorted { $0.orderIndex < $1.orderIndex }, id: \.id.uuidString) { step in
                 CardView {
-                    StepItemView(
-                        step: step,
-                        isCompleted: completedSteps.contains(step.orderIndex)
-                    ) {
-                        if completedSteps.contains(step.orderIndex) {
-                            completedSteps.remove(step.orderIndex)
-                        } else {
-                            completedSteps.insert(step.orderIndex)
-                        }
-                    }
+                    StepItemView(step: step)
                 }
             }
         }
@@ -262,12 +284,10 @@ struct StepsView: View {
 }
 
 struct StepItemView: View {
-    let step: CookingStep
-    let isCompleted: Bool
-    let onToggle: () -> Void
+    @Bindable var step: CookingStep
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {  // Remove spacing here
+        VStack(alignment: .leading, spacing: 0) {
             if let imageData = step.imageData,
                let uiImage = UIImage(data: imageData) {
                 Image(uiImage: uiImage)
@@ -277,17 +297,17 @@ struct StepItemView: View {
                     .clipped()
             }
             
-            Button(action: onToggle) {
+            Button(action: { step.isCompleted.toggle() }) {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack(alignment: .top, spacing: 12) {
-                        Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
-                            .foregroundStyle(isCompleted ? .green : .secondary)
+                        Image(systemName: step.isCompleted ? "checkmark.circle.fill" : "circle")
+                            .foregroundStyle(step.isCompleted ? .green : .secondary)
                             .font(.title3)
                         
                         VStack(alignment: .leading, spacing: 4) {
                             Text("\(step.stepDescription)")
-                                .strikethrough(isCompleted)
-                                .foregroundStyle(isCompleted ? .secondary : .primary)
+                                .strikethrough(step.isCompleted)
+                                .foregroundStyle(step.isCompleted ? .secondary : .primary)
                             
                             if let duration = step.durationMinutes {
                                 Label {

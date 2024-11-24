@@ -14,64 +14,112 @@ class SubscriptionService: ObservableObject {
     
     @Published private(set) var subscriptions: [Product] = []
     @Published private(set) var purchasedSubscriptions: [Product] = []
+    @Published private(set) var subscriptionStatus: SubscriptionStatus = .unknown
     
-    private var updateListenerTask: Task<Void, Error>?
-    
+    private var transactionListener: Task<Void, Error>?
+    private var statusUpdateTimer: Timer?
     let subscriptionGroupID = "dev.serlic.recipeasypro"
     
+    enum SubscriptionStatus {
+        case unknown
+        case subscribed
+        case notSubscribed
+    }
+    
     init() {
-        updateListenerTask = listenForTransactions()
+        // Start transaction listener
+        transactionListener = listenForTransactions()
         
+        // Initial setup
         Task {
             await requestProducts()
-            await updateCustomerProductStatus()
+            await updateSubscriptionStatus()
         }
-    }
-    
-    deinit {
-        updateListenerTask?.cancel()
-    }
-    
-    func listenForTransactions() -> Task<Void, Error> {
-        return Task.detached {
-            for await result in Transaction.updates {
-                await self.handleTransactionResult(result)
+        
+        // Set up periodic status checks
+        statusUpdateTimer = Timer.scheduledTimer(withTimeInterval: 60.0, repeats: true) { [weak self] _ in
+            Task { [weak self] in
+                await self?.updateSubscriptionStatus()
             }
         }
     }
     
-    private func handleTransactionResult(_ result: VerificationResult<StoreKit.Transaction>) async {
-        let transaction = try? result.payloadValue
-        guard let transaction = transaction else { return }
+    deinit {
+        transactionListener?.cancel()
+        statusUpdateTimer?.invalidate()
+    }
+    
+    func listenForTransactions() -> Task<Void, Error> {
+        return Task.detached { [weak self] in
+            // Iterate through any transactions that don't have a revocation status
+            for await result in Transaction.updates {
+                do {
+                    let transaction = try await self?.checkVerified(result)
+                    
+                    // Update the customer's subscription status
+                    await self?.updateSubscriptionStatus()
+                    
+                    // Always finish a transaction
+                    await transaction?.finish()
+                } catch {
+                    print("Transaction failed verification: \(error)")
+                }
+            }
+        }
+    }
+    
+    func updateSubscriptionStatus() async {
+        var hasActiveSubscription = false
         
-        // Handle transaction and update purchasedSubscriptions
-        await updateCustomerProductStatus()
+        // Check current entitlements
+        for await result in Transaction.currentEntitlements {
+            do {
+                let transaction = try checkVerified(result)
+                
+                // Check if this subscription is still valid
+                if transaction.revocationDate == nil {
+                    hasActiveSubscription = true
+                    break
+                }
+            } catch {
+                print("Failed to verify transaction: \(error)")
+            }
+        }
         
-        // Always finish a transaction
-        await transaction.finish()
+        // Update the status
+        await MainActor.run {
+            self.subscriptionStatus = hasActiveSubscription ? .subscribed : .notSubscribed
+        }
     }
     
     func requestProducts() async {
         do {
             let storeProducts = try await Product.products(for: [subscriptionGroupID])
-            subscriptions = storeProducts.sorted(by: { $0.price < $1.price })
+            
+            await MainActor.run {
+                self.subscriptions = storeProducts.sorted(by: { $0.price < $1.price })
+            }
         } catch {
             print("Failed to request products:", error)
         }
     }
     
     func purchase(_ product: Product) async throws -> StoreKit.Transaction? {
+        // Begin purchasing the product
         let result = try await product.purchase()
         
         switch result {
         case .success(let verification):
             let transaction = try checkVerified(verification)
-            await updateCustomerProductStatus()
+            await updateSubscriptionStatus()
             return transaction
+            
         case .userCancelled:
             return nil
+            
         case .pending:
             return nil
+            
         @unknown default:
             return nil
         }
@@ -86,29 +134,13 @@ class SubscriptionService: ObservableObject {
         }
     }
     
-    func updateCustomerProductStatus() async {
-        var purchasedSubscriptions: [Product] = []
-        
-        for await result in Transaction.currentEntitlements {
-            guard let transaction = try? result.payloadValue else { continue }
-            
-            guard let subscription = subscriptions.first(where: { $0.id == transaction.productID }) else { continue }
-            
-            purchasedSubscriptions.append(subscription)
-        }
-        
-        self.purchasedSubscriptions = purchasedSubscriptions
+    func restorePurchases() async throws {
+        try? await AppStore.sync()
+        await updateSubscriptionStatus()
     }
     
     var hasActiveSubscription: Bool {
-        !purchasedSubscriptions.isEmpty
-    }
-}
-
-extension SubscriptionService {
-    func restorePurchases() async throws {
-        try? await AppStore.sync()
-        await updateCustomerProductStatus()
+        subscriptionStatus == .subscribed
     }
 }
 
