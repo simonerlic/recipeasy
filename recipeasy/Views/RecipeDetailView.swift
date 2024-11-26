@@ -131,8 +131,16 @@ struct RecipeDetailView: View {
         .navigationTitle("")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: { showingEditSheet = true }) {
-                    Text("Edit")
+                Menu {
+                    Button(action: { showingEditSheet = true }) {
+                        Label("Edit", systemImage: "pencil")
+                    }
+                    
+                    Button(action: printRecipe) {
+                        Label("Print", systemImage: "printer")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
                 }
             }
         }
@@ -156,6 +164,65 @@ struct RecipeDetailView: View {
                 step.isCompleted = false
             }
         }
+    }
+    
+    private func printRecipe() {
+        let printController = UIPrintInteractionController.shared
+        let printInfo = UIPrintInfo(dictionary: nil)
+        printInfo.jobName = recipe.name
+        printInfo.outputType = .general
+        printController.printInfo = printInfo
+        
+        let formatter = UIMarkupTextPrintFormatter(markupText: """
+            <html>
+            <head>
+                <style>
+                    body { font-family: -apple-system; margin: 40px; }
+                    h1 { font-size: 24pt; }
+                    h2 { font-size: 18pt; margin-top: 20px; }
+                    .meta { color: #666; font-size: 12pt; }
+                    .step { margin-bottom: 10px; }
+                    .notes { color: #666; font-size: 10pt; }
+                </style>
+            </head>
+            <body>
+                <h1>\(recipe.name)</h1>
+                <p>\(recipe.recipeDescription)</p>
+                <p class="meta">Time: \(recipe.cookingTimeMinutes) minutes • Difficulty: \(recipe.difficulty.rawValue)</p>
+                
+                <h2>Ingredients</h2>
+                \(recipe.ingredients.map { ingredient in
+                    let amount = formatAmount(ingredient.amount)
+                    let notes = ingredient.notes.map { " (\($0))" } ?? ""
+                    return "<p>• \(amount) \(ingredient.unit) \(ingredient.name)\(notes)</p>"
+                }.joined())
+                
+                <h2>Instructions</h2>
+                \(recipe.steps.sorted { $0.orderIndex < $1.orderIndex }.map { step in
+                    let duration = step.durationMinutes.map { " (Duration: \($0) min)" } ?? ""
+                    let notes = step.notes.map { "<br><span class='notes'>\($0)</span>" } ?? ""
+                    return "<div class='step'>\(step.orderIndex + 1). \(step.stepDescription)\(duration)\(notes)</div>"
+                }.joined())
+                
+                \(recipe.notes.isEmpty ? "" : """
+                    <h2>Notes</h2>
+                    <p>\(recipe.notes)</p>
+                    """)
+            </body>
+            </html>
+        """)
+        
+        printController.printFormatter = formatter
+        
+        printController.present(animated: true)
+    }
+    
+    private func formatAmount(_ value: Double) -> String {
+        if value.truncatingRemainder(dividingBy: 1) == 0 {
+            return String(format: "%.0f", value)
+        }
+        return String(format: "%.2f", value)
+            .replacingOccurrences(of: #"\.?0+$"#, with: "", options: .regularExpression)
     }
 }
 
