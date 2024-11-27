@@ -37,10 +37,13 @@ struct ContentView: View {
             ScrollView(.vertical) {
                 LazyVStack(spacing: 16) {
                     ForEach(recipes) { recipe in
-                        NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
+                        NavigationLink {
+                            RecipeDetailView(recipe: recipe)
+                        } label: {
                             RecipeCard(recipe: recipe)
                         }
                         .buttonStyle(PlainButtonStyle())
+                        .simultaneousGesture(TapGesture().onEnded {})
                     }
                 }
                 .padding()
@@ -92,7 +95,7 @@ struct ContentView: View {
             .sheet(isPresented: $showingImportModal) {
                 NavigationStack {
                     ImportRecipeView()
-                         .presentationDetents([.large])
+                        .presentationDetents([.large])
                 }
             }
         } detail: {
@@ -104,7 +107,6 @@ struct ContentView: View {
         withAnimation {
             for index in offsets {
                 let recipe = recipes[index]
-                // Delete related entities first
                 recipe.ingredients.forEach { modelContext.delete($0) }
                 recipe.steps.forEach { modelContext.delete($0) }
                 modelContext.delete(recipe)

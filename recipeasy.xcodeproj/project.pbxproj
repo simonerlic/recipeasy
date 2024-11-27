@@ -146,13 +146,13 @@
 		D73062BF2CE979AA008EC861 = {
 			isa = PBXGroup;
 			children = (
-				D7E6BEB92CF69A6900134002 /* RecipeWidgetExtensionExtension.entitlements */,
 				D73062CA2CE979AA008EC861 /* recipeasy */,
 				D73062DD2CE979AC008EC861 /* recipeasyTests */,
 				D73062E72CE979AC008EC861 /* recipeasyUITests */,
 				D7E6BEA52CF69A2F00134002 /* RecipeWidgetExtension */,
 				D7A304F02CEC4A5100E9A327 /* Frameworks */,
 				D73062C92CE979AA008EC861 /* Products */,
+				D7E6BEB92CF69A6900134002 /* RecipeWidgetExtensionExtension.entitlements */,
 			);
 			sourceTree = "<group>";
 		};

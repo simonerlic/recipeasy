@@ -84,7 +84,8 @@ struct MediumRecipeWidget: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                 }
-                .padding(.leading, 16)
+                .padding(.leading, recipe.imageData != nil ? 16 : 0)
+
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }

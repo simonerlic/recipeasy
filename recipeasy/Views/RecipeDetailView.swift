@@ -64,9 +64,7 @@ struct DifficultyChip: View {
 struct RecipeDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @Bindable var recipe: Recipe
-    @State private var completedSteps: Set<Int> = []
     @State private var showingEditSheet = false
-    
     @State private var isShowingShareSheet = false
     @State private var shareItems: [Any] = []
     
@@ -80,55 +78,74 @@ struct RecipeDetailView: View {
     
     var body: some View {
         ScrollView {
+            
             VStack(alignment: .leading, spacing: 16) {
                 Text(recipe.name)
                     .font(.largeTitle)
                     .bold()
-                HStack {
-                    TimeChip(minutes: recipe.cookingTimeMinutes)
-                        .padding(.top, -8)
-                    DifficultyChip(recipe: recipe)
-                        .padding(.top, -8)
-                }
-
-                if !recipe.recipeDescription.isEmpty {
-                    Text(recipe.recipeDescription)
-                        .font(.subheadline)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.leading)
+                
+                // Recipe Image
+                if let imageData = recipe.imageData,
+                   let uiImage = UIImage(data: imageData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 250)
+                        .clipped()
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .padding(.horizontal)
                 }
                 
-                if !recipe.ingredients.isEmpty {
-                    SectionHeader(title: "Ingredients")
-                    IngredientsView(ingredients: uniqueIngredients)
-                }
-                
-                if !recipe.steps.isEmpty {
-                    SectionHeader(title: "Steps") {
-                        if recipe.steps.contains(where: { $0.isCompleted }) {
-                            Button(action: resetSteps) {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "arrow.counterclockwise")
-                                    Text("Reset")
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack {
+                        TimeChip(minutes: recipe.cookingTimeMinutes)
+                            .padding(.top, -16)
+                        DifficultyChip(recipe: recipe)
+                            .padding(.top, -16)
+                    }
+                    .padding(.top, recipe.imageData == nil ? -8 : 0)
+                    
+                    if !recipe.recipeDescription.isEmpty {
+                        Text(recipe.recipeDescription)
+                            .font(.subheadline)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    
+                    if !recipe.ingredients.isEmpty {
+                        SectionHeader(title: "Ingredients")
+                        IngredientsView(ingredients: uniqueIngredients)
+                    }
+                    
+                    if !recipe.steps.isEmpty {
+                        SectionHeader(title: "Steps") {
+                            if recipe.steps.contains(where: { $0.isCompleted }) {
+                                Button(action: resetSteps) {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "arrow.counterclockwise")
+                                        Text("Reset")
+                                    }
+                                    .foregroundColor(.blue)
                                 }
-                                .foregroundColor(.blue)
                             }
                         }
+                        StepsView(steps: uniqueSteps)
                     }
-                    StepsView(steps: uniqueSteps)
-                }
-                
-                CookingHistoryView(recipe: recipe)
-                
-                if !recipe.notes.isEmpty {
-                    SectionHeader(title: "Notes")
+                    
+                    CookingHistoryView(recipe: recipe)
+                    
+                    if !recipe.notes.isEmpty {
+                        SectionHeader(title: "Notes")
                         Text(recipe.notes)
                             .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                 }
+                .padding()
             }
-            .padding()
         }
-        .navigationBarTitleDisplayMode(.inline)
         .navigationTitle("")
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
