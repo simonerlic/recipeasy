@@ -20,6 +20,8 @@ struct ContentView: View {
     @State private var addRecipeSheet: AddRecipeSheet?
     @State private var showingImportModal = false
     @StateObject private var subscriptionService = SubscriptionService.shared
+    @EnvironmentObject private var deepLinkHandler: DeepLinkHandler
+    @State private var navigationPath = NavigationPath()
 
     enum AddRecipeSheet: Identifiable {
         case manual, ai
@@ -33,22 +35,30 @@ struct ContentView: View {
     }
     
     var body: some View {
-        NavigationSplitView {
+        NavigationStack(path: $navigationPath) {
             ScrollView(.vertical) {
                 LazyVStack(spacing: 16) {
                     ForEach(recipes) { recipe in
-                        NavigationLink {
-                            RecipeDetailView(recipe: recipe)
-                        } label: {
+                        NavigationLink(value: recipe.id) {
                             RecipeCard(recipe: recipe)
                         }
                         .buttonStyle(PlainButtonStyle())
-                        .simultaneousGesture(TapGesture().onEnded {})
                     }
                 }
                 .padding()
             }
             .navigationTitle("My Recipes")
+            .navigationDestination(for: UUID.self) { recipeId in
+                if let recipe = recipes.first(where: { recipe in recipe.id == recipeId }) {
+                    RecipeDetailView(recipe: recipe)
+                }
+            }
+            .onChange(of: deepLinkHandler.selectedRecipeId) { _, newValue in
+                if let recipeId = newValue {
+                    navigationPath.append(recipeId)
+                    deepLinkHandler.selectedRecipeId = nil
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
@@ -98,8 +108,6 @@ struct ContentView: View {
                         .presentationDetents([.large])
                 }
             }
-        } detail: {
-            Text("Click the '+' button to add a new recipe, or select an existing one from the list.")
         }
     }
     
@@ -118,4 +126,5 @@ struct ContentView: View {
 #Preview {
     ContentView()
         .modelContainer(for: Recipe.self, inMemory: true)
+        .environmentObject(DeepLinkHandler())
 }

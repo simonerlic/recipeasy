@@ -11,6 +11,7 @@ import SwiftData
 @main
 struct recipeasyApp: App {
     let sharedModelContainer: ModelContainer
+    @StateObject private var deepLinkHandler = DeepLinkHandler()
     
     init() {
         do {
@@ -44,11 +45,19 @@ struct recipeasyApp: App {
         WindowGroup {
             ContentView()
                 .modelContainer(sharedModelContainer)
+                .environmentObject(deepLinkHandler)
                 .onOpenURL { url in
-                    if url.scheme == "recipeasy" && url.host == "recipe",
-                       let recipeId = UUID(uuidString: url.lastPathComponent) {
+                    guard url.scheme == "recipeasy",
+                          url.host == "recipe",
+                          let recipeId = UUID(uuidString: url.lastPathComponent) else {
+                        return
                     }
+                    deepLinkHandler.selectedRecipeId = recipeId
                 }
         }
     }
+}
+
+class DeepLinkHandler: ObservableObject {
+    @Published var selectedRecipeId: UUID?
 }
