@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		D7A304F22CEC4A5100E9A327 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D7A304F12CEC4A5100E9A327 /* StoreKit.framework */; };
+		D7E6BEA22CF69A2F00134002 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D7E6BEA12CF69A2F00134002 /* WidgetKit.framework */; };
+		D7E6BEA42CF69A2F00134002 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D7E6BEA32CF69A2F00134002 /* SwiftUI.framework */; };
+		D7E6BEB32CF69A3100134002 /* RecipeWidgetExtensionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D7E6BEA02CF69A2F00134002 /* RecipeWidgetExtensionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -25,13 +28,38 @@
 			remoteGlobalIDString = D73062C72CE979AA008EC861;
 			remoteInfo = recipeasy;
 		};
+		D7E6BEB12CF69A3100134002 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D73062C02CE979AA008EC861 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D7E6BE9F2CF69A2F00134002;
+			remoteInfo = RecipeWidgetExtensionExtension;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D7E6BEB82CF69A3100134002 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				D7E6BEB32CF69A3100134002 /* RecipeWidgetExtensionExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		D73062C82CE979AA008EC861 /* recipeasy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = recipeasy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D73062DA2CE979AC008EC861 /* recipeasyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = recipeasyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D73062E42CE979AC008EC861 /* recipeasyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = recipeasyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D7A304F12CEC4A5100E9A327 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		D7E6BEA02CF69A2F00134002 /* RecipeWidgetExtensionExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = RecipeWidgetExtensionExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D7E6BEA12CF69A2F00134002 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		D7E6BEA32CF69A2F00134002 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		D7E6BEB92CF69A6900134002 /* RecipeWidgetExtensionExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RecipeWidgetExtensionExtension.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -41,6 +69,13 @@
 				Info.plist,
 			);
 			target = D73062C72CE979AA008EC861 /* recipeasy */;
+		};
+		D7E6BEB72CF69A3100134002 /* Exceptions for "RecipeWidgetExtension" folder in "RecipeWidgetExtensionExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D7E6BE9F2CF69A2F00134002 /* RecipeWidgetExtensionExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -61,6 +96,14 @@
 		D73062E72CE979AC008EC861 /* recipeasyUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = recipeasyUITests;
+			sourceTree = "<group>";
+		};
+		D7E6BEA52CF69A2F00134002 /* RecipeWidgetExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D7E6BEB72CF69A3100134002 /* Exceptions for "RecipeWidgetExtension" folder in "RecipeWidgetExtensionExtension" target */,
+			);
+			path = RecipeWidgetExtension;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -88,15 +131,26 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D7E6BE9D2CF69A2F00134002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D7E6BEA42CF69A2F00134002 /* SwiftUI.framework in Frameworks */,
+				D7E6BEA22CF69A2F00134002 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		D73062BF2CE979AA008EC861 = {
 			isa = PBXGroup;
 			children = (
+				D7E6BEB92CF69A6900134002 /* RecipeWidgetExtensionExtension.entitlements */,
 				D73062CA2CE979AA008EC861 /* recipeasy */,
 				D73062DD2CE979AC008EC861 /* recipeasyTests */,
 				D73062E72CE979AC008EC861 /* recipeasyUITests */,
+				D7E6BEA52CF69A2F00134002 /* RecipeWidgetExtension */,
 				D7A304F02CEC4A5100E9A327 /* Frameworks */,
 				D73062C92CE979AA008EC861 /* Products */,
 			);
@@ -108,6 +162,7 @@
 				D73062C82CE979AA008EC861 /* recipeasy.app */,
 				D73062DA2CE979AC008EC861 /* recipeasyTests.xctest */,
 				D73062E42CE979AC008EC861 /* recipeasyUITests.xctest */,
+				D7E6BEA02CF69A2F00134002 /* RecipeWidgetExtensionExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -116,6 +171,8 @@
 			isa = PBXGroup;
 			children = (
 				D7A304F12CEC4A5100E9A327 /* StoreKit.framework */,
+				D7E6BEA12CF69A2F00134002 /* WidgetKit.framework */,
+				D7E6BEA32CF69A2F00134002 /* SwiftUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -130,10 +187,12 @@
 				D73062C42CE979AA008EC861 /* Sources */,
 				D73062C52CE979AA008EC861 /* Frameworks */,
 				D73062C62CE979AA008EC861 /* Resources */,
+				D7E6BEB82CF69A3100134002 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				D7E6BEB22CF69A3100134002 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				D73062CA2CE979AA008EC861 /* recipeasy */,
@@ -191,6 +250,28 @@
 			productReference = D73062E42CE979AC008EC861 /* recipeasyUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		D7E6BE9F2CF69A2F00134002 /* RecipeWidgetExtensionExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D7E6BEB42CF69A3100134002 /* Build configuration list for PBXNativeTarget "RecipeWidgetExtensionExtension" */;
+			buildPhases = (
+				D7E6BE9C2CF69A2F00134002 /* Sources */,
+				D7E6BE9D2CF69A2F00134002 /* Frameworks */,
+				D7E6BE9E2CF69A2F00134002 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				D7E6BEA52CF69A2F00134002 /* RecipeWidgetExtension */,
+			);
+			name = RecipeWidgetExtensionExtension;
+			packageProductDependencies = (
+			);
+			productName = RecipeWidgetExtensionExtension;
+			productReference = D7E6BEA02CF69A2F00134002 /* RecipeWidgetExtensionExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -212,6 +293,9 @@
 						CreatedOnToolsVersion = 16.1;
 						TestTargetID = D73062C72CE979AA008EC861;
 					};
+					D7E6BE9F2CF69A2F00134002 = {
+						CreatedOnToolsVersion = 16.1;
+					};
 				};
 			};
 			buildConfigurationList = D73062C32CE979AA008EC861 /* Build configuration list for PBXProject "recipeasy" */;
@@ -231,6 +315,7 @@
 				D73062C72CE979AA008EC861 /* recipeasy */,
 				D73062D92CE979AC008EC861 /* recipeasyTests */,
 				D73062E32CE979AC008EC861 /* recipeasyUITests */,
+				D7E6BE9F2CF69A2F00134002 /* RecipeWidgetExtensionExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -251,6 +336,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		D73062E22CE979AC008EC861 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D7E6BE9E2CF69A2F00134002 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -281,6 +373,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D7E6BE9C2CF69A2F00134002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -293,6 +392,11 @@
 			isa = PBXTargetDependency;
 			target = D73062C72CE979AA008EC861 /* recipeasy */;
 			targetProxy = D73062E52CE979AC008EC861 /* PBXContainerItemProxy */;
+		};
+		D7E6BEB22CF69A3100134002 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D7E6BE9F2CF69A2F00134002 /* RecipeWidgetExtensionExtension */;
+			targetProxy = D7E6BEB12CF69A3100134002 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -566,6 +670,66 @@
 			};
 			name = Release;
 		};
+		D7E6BEB52CF69A3100134002 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = RecipeWidgetExtensionExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = KW38PQP7BK;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RecipeWidgetExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = RecipeWidgetExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.serlic.recipeasy.RecipeWidgetExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D7E6BEB62CF69A3100134002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = RecipeWidgetExtensionExtension.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = KW38PQP7BK;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RecipeWidgetExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = RecipeWidgetExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.serlic.recipeasy.RecipeWidgetExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -601,6 +765,15 @@
 			buildConfigurations = (
 				D73062F52CE979AC008EC861 /* Debug */,
 				D73062F62CE979AC008EC861 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D7E6BEB42CF69A3100134002 /* Build configuration list for PBXNativeTarget "RecipeWidgetExtensionExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D7E6BEB52CF69A3100134002 /* Debug */,
+				D7E6BEB62CF69A3100134002 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

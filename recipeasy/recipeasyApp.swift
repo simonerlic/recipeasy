@@ -24,7 +24,8 @@ struct recipeasyApp: App {
             let modelConfiguration = ModelConfiguration(
                 schema: schema,
                 isStoredInMemoryOnly: false,
-                allowsSave: true
+                allowsSave: true,
+                groupContainer: .identifier("group.dev.serlic.recipeasy")
             )
             
             self.sharedModelContainer = try ModelContainer(
@@ -43,8 +44,10 @@ struct recipeasyApp: App {
         WindowGroup {
             ContentView()
                 .modelContainer(sharedModelContainer)
-                .task {
-                    await SubscriptionService.shared.updateSubscriptionStatus()
+                .onOpenURL { url in
+                    if url.scheme == "recipeasy" && url.host == "recipe",
+                       let recipeId = UUID(uuidString: url.lastPathComponent) {
+                    }
                 }
         }
     }
