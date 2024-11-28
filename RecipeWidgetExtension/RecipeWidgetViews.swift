@@ -54,6 +54,7 @@ struct MediumRecipeWidget: View {
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: geometry.size.height)
+                        .frame(height: geometry.size.height)
                         .clipped()
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
