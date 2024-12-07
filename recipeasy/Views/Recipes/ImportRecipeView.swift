@@ -39,13 +39,6 @@ struct ImportRecipeView: View {
                 )
                 .navigationTitle("Setup Required")
                 .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button("Cancel") {
-                            dismiss()
-                        }
-                    }
-                }
             } else {
                 ScrollView {
                     VStack(spacing: 24) {

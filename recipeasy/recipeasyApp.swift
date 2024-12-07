@@ -36,8 +36,18 @@ struct recipeasyApp: App {
         } catch {
             fatalError("Could not initialize ModelContainer: \(error)")
         }
+        
+        UILabel.appearance().adjustsFontForContentSizeCategory = true
+        
         Task {
             await SubscriptionService.shared.updateSubscriptionStatus()
+        }
+        
+        for family in UIFont.familyNames.sorted() {
+            print("Family: \(family)")
+            for name in UIFont.fontNames(forFamilyName: family) {
+                print("   Font: \(name)")
+            }
         }
     }
     

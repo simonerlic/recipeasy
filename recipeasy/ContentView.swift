@@ -48,6 +48,7 @@ struct ContentView: View {
                 .padding()
             }
             .navigationTitle("My Recipes")
+
             .navigationDestination(for: UUID.self) { recipeId in
                 if let recipe = recipes.first(where: { recipe in recipe.id == recipeId }) {
                     RecipeDetailView(recipe: recipe)
