@@ -20,7 +20,7 @@ struct APISetupView: View {
                 .background(Color.secondary.opacity(0.1))
                 .clipShape(Circle())
             
-            Text("AI Generation Setup Required")
+            Title2Text("AI Generation Setup Required")
                 .font(.title2.bold())
             
             Text("To use the AI recipe generator, you'll need to either subscribe or provide your own OpenAI API key.")

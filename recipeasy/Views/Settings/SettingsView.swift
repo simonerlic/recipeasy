@@ -84,7 +84,7 @@ struct SettingsView: View {
                     }
                 
                     Section {
-                        Label("Version 1.0.0", systemImage: "info.circle")
+                        Label("Version 1.1.0", systemImage: "info.circle")
                             .foregroundStyle(.secondary)
                     }
                 }

@@ -28,7 +28,7 @@ struct SubscriptionView: View {
                             .font(.system(size: 48))
                             .foregroundStyle(.blue)
                         
-                        Text("Unlock AI Recipe Generation")
+                        Title2Text("Unlock AI Recipe Generation")
                             .font(.title2.bold())
                     }
                     .padding(.top)
@@ -198,7 +198,7 @@ struct FeatureRow: View {
         HStack {
             Image(systemName: icon)
                 .foregroundStyle(.blue)
-                .frame(width: 24)
+                .frame(width: 28)
             Text(text)
             Spacer()
         }

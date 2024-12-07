@@ -60,7 +60,7 @@ struct AIRecipeService {
         Ensure all measurements are precise with numeric values.
         Keep step descriptions clear and concise.
         Include relevant cooking tips in the notes field.
-        Use 'easy', 'medium', or 'hard' for difficulty levels.
+        Ensure you set the difficulty level accordingly, with "easy" being beginner friendly, "medium" being comfortable for a home chef, and "hard" being fairly involved for the average person.
         """
         
         let messages = [
@@ -76,7 +76,7 @@ struct AIRecipeService {
                 "name": ["type": "string"],
                 "description": ["type": "string"],
                 "cookingTimeMinutes": ["type": "integer", "minimum": 1],
-                "difficulty": ["type": "string", "enum": ["easy", "medium", "hard"]],
+                "difficulty": ["type": "string", "enum": ["Easy", "Medium", "Hard"]],
                 "ingredients": [
                     "type": "array",
                     "items": [
@@ -199,13 +199,17 @@ struct AIRecipeService {
                 )
             }
             
+            guard let difficulty = DifficultyLevel(rawValue: recipeData.difficulty) else {
+                throw AIRecipeError.decodingError(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid difficulty level"]))
+            }
+            
             return Recipe(
                 name: recipeData.name,
                 recipeDescription: recipeData.description,
                 ingredients: ingredients,
                 steps: steps,
                 cookingTimeMinutes: recipeData.cookingTimeMinutes,
-                difficulty: DifficultyLevel(rawValue: recipeData.difficulty.lowercased()) ?? .medium,
+                difficulty: difficulty,
                 notes: recipeData.notes,
                 isAIGenerated: true
             )

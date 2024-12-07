@@ -20,7 +20,7 @@ class ParseWebRecipeService {
         let cleanHTML = cleanHTML(html)
         
         let prompt = """
-        Extract the recipe from this HTML and format it as JSON. Here's the webpage content:
+        Extract the recipe from this HTML and format it as JSON. Ensure the difficulty is set accordingly. Here's the webpage content:
         
         \(cleanHTML)
         
