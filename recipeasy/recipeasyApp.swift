@@ -14,6 +14,9 @@ struct recipeasyApp: App {
     @StateObject private var deepLinkHandler = DeepLinkHandler()
     
     init() {
+        
+        Font.setUp()
+        
         do {
             let schema = Schema([
                 Recipe.self,
@@ -37,17 +40,8 @@ struct recipeasyApp: App {
             fatalError("Could not initialize ModelContainer: \(error)")
         }
         
-        UILabel.appearance().adjustsFontForContentSizeCategory = true
-        
         Task {
             await SubscriptionService.shared.updateSubscriptionStatus()
-        }
-        
-        for family in UIFont.familyNames.sorted() {
-            print("Family: \(family)")
-            for name in UIFont.fontNames(forFamilyName: family) {
-                print("   Font: \(name)")
-            }
         }
     }
     

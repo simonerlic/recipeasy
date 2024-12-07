@@ -211,11 +211,11 @@ struct GenerateRecipeView: View {
                 .foregroundStyle(.green)
                 .padding()
             
-            Text("Recipe Generated!")
-                .font(.title2.bold())
+            TitleText("Recipe Generated!")
+                .font(.title.bold())
             
             VStack(alignment: .leading, spacing: 16) {
-                Text(recipe.name)
+                Title3Text(recipe.name)
                     .font(.title3.bold())
                 
                 Text(recipe.recipeDescription)

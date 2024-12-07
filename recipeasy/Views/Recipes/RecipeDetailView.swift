@@ -11,16 +11,12 @@ struct TimeChip: View {
     let minutes: Int
     
     var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "clock.fill")
-                .font(.caption)
-            Text(formatDuration(minutes: minutes))
-                .font(.caption)
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(Color.gray.opacity(0.15))
-        .clipShape(Capsule())
+        Label(formatDuration(minutes: minutes), systemImage: "clock.fill")
+            .font(.caption)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(Color.gray.opacity(0.15))
+            .clipShape(Capsule())
     }
     
     private func formatDuration(minutes: Int) -> String {
@@ -80,8 +76,9 @@ struct RecipeDetailView: View {
         ScrollView {
             
             VStack(alignment: .leading, spacing: 16) {
-                Text(recipe.name)
-                    .font(.largeTitle)
+                TitleText(recipe.name)
+                    .font(.title3)
+                    .fontWeight(.semibold)
                     .bold()
                     .padding(.leading)
                 
@@ -108,7 +105,7 @@ struct RecipeDetailView: View {
                     .padding(.top, recipe.imageData == nil ? -8 : 0)
                     
                     if !recipe.recipeDescription.isEmpty {
-                        Text(recipe.recipeDescription)
+                        SubheadlineText(recipe.recipeDescription)
                             .font(.subheadline)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
@@ -143,6 +140,7 @@ struct RecipeDetailView: View {
                 }
                 .padding()
             }
+            .padding(.top)
         }
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
@@ -267,7 +265,7 @@ struct SectionHeader<Trailing: View>: View {
     
     var body: some View {
         HStack {
-            Text(title)
+            Title3Text(title)
                 .font(.title3.bold())
                 .foregroundStyle(.primary)
             

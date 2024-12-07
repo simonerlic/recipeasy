@@ -62,7 +62,10 @@ struct ImportRecipeView: View {
                         VStack(spacing: 12) {
                             HStack {
                                 TextField("Recipe URL", text: $url)
-                                    .textFieldStyle(.roundedBorder)
+                                    .padding(8)
+                                    .padding(.leading, 8)
+                                    .background(Color(.secondarySystemBackground))
+                                    .clipShape(Capsule())
                                     .autocorrectionDisabled()
                                     .textInputAutocapitalization(.never)
                                     .disabled(isLoading)

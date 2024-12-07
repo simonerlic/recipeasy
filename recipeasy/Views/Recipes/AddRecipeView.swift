@@ -192,7 +192,7 @@ struct AddRecipeView: View {
         .onAppear {
             // Create a temporary recipe to manage relationships
             let recipe = Recipe(
-                name: "Unfinisehd Recipe",
+                name: "Unfinished Recipe",
                 recipeDescription: "",
                 ingredients: [],
                 steps: [],
