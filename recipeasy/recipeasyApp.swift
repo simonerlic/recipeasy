@@ -14,9 +14,6 @@ struct recipeasyApp: App {
     @StateObject private var deepLinkHandler = DeepLinkHandler()
     
     init() {
-        
-//        Font.setUp()
-        
         do {
             let schema = Schema([
                 Recipe.self,
@@ -50,14 +47,6 @@ struct recipeasyApp: App {
             ContentView()
                 .modelContainer(sharedModelContainer)
                 .environmentObject(deepLinkHandler)
-                .onOpenURL { url in
-                    guard url.scheme == "recipeasy",
-                          url.host == "recipe",
-                          let recipeId = UUID(uuidString: url.lastPathComponent) else {
-                        return
-                    }
-                    deepLinkHandler.selectedRecipeId = recipeId
-                }
         }
     }
 }
