@@ -15,7 +15,7 @@ struct recipeasyApp: App {
     
     init() {
         
-        Font.setUp()
+//        Font.setUp()
         
         do {
             let schema = Schema([

@@ -76,9 +76,9 @@ struct RecipeDetailView: View {
         ScrollView {
             
             VStack(alignment: .leading, spacing: 16) {
-                TitleText(recipe.name)
-                    .font(.title3)
-                    .fontWeight(.semibold)
+                Text(recipe.name)
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
                     .bold()
                     .padding(.leading)
                 
@@ -105,7 +105,7 @@ struct RecipeDetailView: View {
                     .padding(.top, recipe.imageData == nil ? -8 : 0)
                     
                     if !recipe.recipeDescription.isEmpty {
-                        SubheadlineText(recipe.recipeDescription)
+                        Text(recipe.recipeDescription)
                             .font(.subheadline)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
@@ -265,7 +265,7 @@ struct SectionHeader<Trailing: View>: View {
     
     var body: some View {
         HStack {
-            Title3Text(title)
+            Text(title)
                 .font(.title3.bold())
                 .foregroundStyle(.primary)
             

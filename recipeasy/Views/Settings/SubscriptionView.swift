@@ -28,7 +28,7 @@ struct SubscriptionView: View {
                             .font(.system(size: 48))
                             .foregroundStyle(.blue)
                         
-                        Title2Text("Unlock AI Recipe Generation")
+                        Text("Unlock AI Recipe Generation")
                             .font(.title2.bold())
                     }
                     .padding(.top)

@@ -23,7 +23,7 @@ struct SettingsView: View {
                         if !subscriptionService.hasActiveSubscription {
                             Button(action: { showingSubscription = true }) {
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Title3Text("Subscribe to Recipeasy")
+                                    Text("Subscribe to Recipeasy")
                                         .font(.title3.bold())
                                     Text("Generate unlimited AI recipes without an API key")
                                         .font(.caption)
@@ -32,7 +32,7 @@ struct SettingsView: View {
                             }
                         } else {
                             VStack(alignment: .leading, spacing: 4) {
-                                Title3Text("Thanks for subscribing!")
+                                Text("Thanks for subscribing!")
                                     .font(.title3.bold())
                                 Text("You can manage your subscription within the App Store.")
                                     .font(.caption)
