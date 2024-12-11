@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D72B28492D093CB9009C8E96 /* WhatsNewKit in Frameworks */ = {isa = PBXBuildFile; productRef = D72B28482D093CB9009C8E96 /* WhatsNewKit */; };
 		D7A304F22CEC4A5100E9A327 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D7A304F12CEC4A5100E9A327 /* StoreKit.framework */; };
 		D7E6BEA22CF69A2F00134002 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D7E6BEA12CF69A2F00134002 /* WidgetKit.framework */; };
 		D7E6BEA42CF69A2F00134002 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D7E6BEA32CF69A2F00134002 /* SwiftUI.framework */; };
@@ -113,6 +114,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D72B28492D093CB9009C8E96 /* WhatsNewKit in Frameworks */,
 				D7A304F22CEC4A5100E9A327 /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -199,6 +201,7 @@
 			);
 			name = recipeasy;
 			packageProductDependencies = (
+				D72B28482D093CB9009C8E96 /* WhatsNewKit */,
 			);
 			productName = recipeasy;
 			productReference = D73062C82CE979AA008EC861 /* recipeasy.app */;
@@ -307,6 +310,9 @@
 			);
 			mainGroup = D73062BF2CE979AA008EC861;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				D72B28472D093CB9009C8E96 /* XCRemoteSwiftPackageReference "WhatsNewKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D73062C92CE979AA008EC861 /* Products */;
 			projectDirPath = "";
@@ -781,6 +787,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D72B28472D093CB9009C8E96 /* XCRemoteSwiftPackageReference "WhatsNewKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SvenTiigi/WhatsNewKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.2.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D72B28482D093CB9009C8E96 /* WhatsNewKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D72B28472D093CB9009C8E96 /* XCRemoteSwiftPackageReference "WhatsNewKit" */;
+			productName = WhatsNewKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D73062C02CE979AA008EC861 /* Project object */;
 }

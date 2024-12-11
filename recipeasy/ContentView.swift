@@ -6,8 +6,10 @@
 //  Created by Simon Erlic on 2024-11-16.
 //
 
+
 import SwiftUI
 import SwiftData
+import WhatsNewKit
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
@@ -108,6 +110,7 @@ struct ContentView: View {
                         .presentationDetents([.large])
                 }
             }
+            .whatsNewSheet()
         }
     }
     
