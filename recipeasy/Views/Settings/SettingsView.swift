@@ -63,6 +63,10 @@ struct SettingsView: View {
                             }
                         }
                     }
+                } footer: {
+                    Text("Please manage your subscription in the App Store")
+                        .font(.caption)
+                        .foregroundColor(.gray)
                 }
 
                 if !subscriptionService.hasActiveSubscription {
