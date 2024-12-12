@@ -133,7 +133,7 @@ struct SettingsView: View {
             .padding(.top)
             
             VStack(alignment: .center) {
-                Text("Version 1.1.0")
+                Text("Version 1.2.0")
                     .font(.caption2)
                 Text("Made with ❤️ by Simon")
                     .font(.caption)

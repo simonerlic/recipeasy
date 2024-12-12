@@ -416,7 +416,7 @@ struct ChipToggleStyle: ToggleStyle {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
-            .background(configuration.isOn ? Color.blue : Color(.systemGray5))
+            .background(configuration.isOn ? Color.blue : Color(.systemGray4))
             .foregroundStyle(configuration.isOn ? .white : .primary)
             .clipShape(Capsule())
             .animation(.snappy, value: configuration.isOn)
