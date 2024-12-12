@@ -63,11 +63,10 @@ struct ContentView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button {
-                        showingSettings = true
-                    } label: {
-                        Label("Settings", systemImage: "gear")
+                    NavigationLink(destination: SettingsView()) {
+                        Image(systemName: "gear")
                     }
+    
                 }
                             
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -102,7 +101,7 @@ struct ContentView: View {
                 .presentationDragIndicator(.visible)
             }
             .sheet(isPresented: $showingSettings) {
-                SettingsView()
+                
             }
             .sheet(isPresented: $showingImportModal) {
                 NavigationStack {
