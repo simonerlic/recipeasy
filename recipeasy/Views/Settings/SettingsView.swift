@@ -130,6 +130,7 @@ struct SettingsView: View {
             .sheet(isPresented: $showingSubscription) {
                 SubscriptionView()
             }
+            .padding(.top)
             
             VStack(alignment: .center) {
                 Text("Version 1.1.0")
