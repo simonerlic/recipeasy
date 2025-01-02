@@ -20,14 +20,14 @@ struct recipeasyApp: App {
                 Recipe.self,
                 Ingredient.self,
                 CookingStep.self,
-                RecipeAttempt.self
+                RecipeAttempt.self,
+                Category.self
             ])
             
+            // Use default URL in the app's Documents directory
             let modelConfiguration = ModelConfiguration(
                 schema: schema,
-                isStoredInMemoryOnly: false,
-                allowsSave: true,
-                groupContainer: .identifier("group.dev.serlic.recipeasy")
+                isStoredInMemoryOnly: false
             )
             
             self.sharedModelContainer = try ModelContainer(
@@ -56,7 +56,6 @@ struct recipeasyApp: App {
                             featureListSpacing: 45
                         ),
                         whatsNewCollection: self
-                        
                     )
                 )
         }
@@ -105,6 +104,49 @@ extension recipeasyApp: WhatsNewCollectionProvider {
                     ),
                     title: "Overhauled Recipe Generation",
                     subtitle: "Streamlined recipe generation prompts to ensure a more consistent experience."
+                )
+            ],
+            primaryAction: .init(
+                hapticFeedback: {
+                    #if os(iOS)
+                    .notification(.success)
+                    #else
+                    nil
+                    #endif
+                }()
+            )
+        )
+        
+        WhatsNew(
+            version: "1.3.0",
+            title: .init(
+                text: .init(
+                    "What's New in\n"                    + AttributedString(
+                        "Recipeasy",
+                        attributes: .foregroundColor(.cyan)
+                    )
+                )
+            ),
+            features: [
+                .init(
+                    image: .init(
+                        systemName: "folder.fill",
+                        foregroundColor: .cyan
+                    ),
+                    title: "Recipe Collections",
+                    subtitle: .init(
+                        try! AttributedString(
+                            markdown: "Organize your recipes in collections!"
+                        )
+                    )
+                ),
+                .init(
+                    image: .init(
+                        systemName: "arrow.2.circlepath.circlepath",
+                        foregroundColor: .cyan
+                    ),
+                    title: "Import from PDF",
+                    subtitle: "Import recipes from PDFs directly into Recipeasy"
                 )
             ],
             primaryAction: .init(

@@ -12,9 +12,9 @@ import SwiftData
 struct EditRecipeView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Query(sort: \Category.sortOrder) private var categories: [Category]
     
     @Bindable var recipe: Recipe
-    
     let onDelete: () -> Void
     
     @State private var name: String
@@ -23,6 +23,7 @@ struct EditRecipeView: View {
     @State private var difficulty: DifficultyLevel
     @State private var notes: String
     @State private var imageData: Data?
+    @State private var selectedCategories: Set<Category>
     
     // State for step input
     @State private var showingAddStep = false
@@ -42,12 +43,14 @@ struct EditRecipeView: View {
     init(recipe: Recipe, onDelete: @escaping () -> Void) {
         self.recipe = recipe
         self.onDelete = onDelete
+        
         _name = State(initialValue: recipe.name)
         _recipeDescription = State(initialValue: recipe.recipeDescription)
         _cookingTimeMinutes = State(initialValue: recipe.cookingTimeMinutes)
         _difficulty = State(initialValue: recipe.difficulty)
         _notes = State(initialValue: recipe.notes)
         _imageData = State(initialValue: recipe.imageData)
+        _selectedCategories = State(initialValue: Set(recipe.categories))
     }
     
     var body: some View {
@@ -56,6 +59,28 @@ struct EditRecipeView: View {
                 TextField("Recipe Name", text: $name)
                 TextField("Description", text: $recipeDescription, axis: .vertical)
                     .lineLimit(3...6)
+            }
+            
+            Section(header: Text("Categories")) {
+                ForEach(categories) { category in
+                    Button(action: {
+                        if selectedCategories.contains(category) {
+                            selectedCategories.remove(category)
+                        } else {
+                            selectedCategories.insert(category)
+                        }
+                    }) {
+                        HStack {
+                            Text(category.name)
+                                .foregroundStyle(.primary)
+                            Spacer()
+                            if selectedCategories.contains(category) {
+                                Image(systemName: "checkmark")
+                                    .foregroundStyle(.blue)
+                            }
+                        }
+                    }
+                }
             }
             
             Section(header: Text("Image")) {
@@ -222,6 +247,19 @@ struct EditRecipeView: View {
     }
     
     private func saveRecipe() {
+        // Remove recipe from all previous categories
+        for category in recipe.categories {
+            category.recipes.removeAll { $0.id == recipe.id }
+        }
+        recipe.categories = Array(selectedCategories)
+        
+        // Add recipe to new categories
+        for category in selectedCategories {
+            if !category.recipes.contains(where: { $0.id == recipe.id }) {
+                category.recipes.append(recipe)
+            }
+        }
+        
         recipe.name = name
         recipe.recipeDescription = recipeDescription
         recipe.cookingTimeMinutes = cookingTimeMinutes
@@ -229,6 +267,7 @@ struct EditRecipeView: View {
         recipe.notes = notes
         recipe.imageData = imageData
         recipe.dateModified = Date()
+        
         dismiss()
     }
     

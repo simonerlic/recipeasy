@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct TimeInputView: View {
     @Binding var minutes: Int
@@ -70,6 +71,7 @@ struct TimeInputView: View {
 struct AddRecipeView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Query(sort: \Category.sortOrder) private var categories: [Category]
     
     @State private var name = ""
     @State private var recipeDescription = ""
@@ -78,7 +80,8 @@ struct AddRecipeView: View {
     @State private var notes = ""
     @State private var steps: [CookingStep] = []
     @State private var ingredients: [Ingredient] = []
-    
+    @State private var selectedCategories: Set<Category> = []
+
     // State for step input
     @State private var showingAddStep = false
     @State private var currentStepDescription = ""
@@ -103,6 +106,28 @@ struct AddRecipeView: View {
                 TextField("Recipe Name", text: $name)
                 TextField("Description", text: $recipeDescription, axis: .vertical)
                     .lineLimit(3...6)
+            }
+            
+            Section(header: Text("Categories")) {
+                ForEach(categories) { category in
+                    Button(action: {
+                        if selectedCategories.contains(category) {
+                            selectedCategories.remove(category)
+                        } else {
+                            selectedCategories.insert(category)
+                        }
+                    }) {
+                        HStack {
+                            Text(category.name)
+                                .foregroundStyle(.primary)
+                            Spacer()
+                            if selectedCategories.contains(category) {
+                                Image(systemName: "checkmark")
+                                    .foregroundStyle(.blue)
+                            }
+                        }
+                    }
+                }
             }
             
             Section(header: Text("Image")) {
@@ -266,15 +291,26 @@ struct AddRecipeView: View {
     }
     
     private func saveRecipe() {
-        if let recipe = temporaryRecipe {
-            recipe.name = name
-            recipe.recipeDescription = recipeDescription
-            recipe.cookingTimeMinutes = cookingTimeMinutes
-            recipe.difficulty = difficulty
-            recipe.notes = notes
-            recipe.imageData = imageData
-            dismiss()
+        let recipe = Recipe(
+            name: name,
+            recipeDescription: recipeDescription,
+            ingredients: ingredients,
+            steps: steps,
+            cookingTimeMinutes: cookingTimeMinutes,
+            difficulty: difficulty,
+            notes: notes,
+            imageData: imageData,
+            categories: Array(selectedCategories)
+        )
+        
+        modelContext.insert(recipe)
+        
+        // Update categories' recipes arrays
+        for category in selectedCategories {
+            category.recipes.append(recipe)
         }
+        
+        dismiss()
     }
 }
 

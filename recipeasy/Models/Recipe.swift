@@ -6,7 +6,6 @@
 //
 
 
-// Recipe.swift
 import Foundation
 import SwiftData
 
@@ -16,6 +15,7 @@ final class Recipe {
     @Relationship(deleteRule: .cascade, inverse: \RecipeAttempt.recipe) var attempts: [RecipeAttempt]
     @Relationship(deleteRule: .cascade, inverse: \Ingredient.recipe) var ingredients: [Ingredient]
     @Relationship(deleteRule: .cascade, inverse: \CookingStep.recipe) var steps: [CookingStep]
+    var categories: [Category]
     
     var name: String
     var recipeDescription: String
@@ -30,7 +30,7 @@ final class Recipe {
     var hasImage: Bool { imageData != nil }
     
     init(
-        id: UUID = UUID(), // Provide default value
+        id: UUID = UUID(),
         name: String = "",
         recipeDescription: String = "",
         ingredients: [Ingredient] = [],
@@ -40,7 +40,8 @@ final class Recipe {
         notes: String = "",
         isAIGenerated: Bool = false,
         imageData: Data? = nil,
-        attempts: [RecipeAttempt] = []
+        attempts: [RecipeAttempt] = [],
+        categories: [Category] = []
     ) {
         self.id = id
         self.name = name
@@ -53,6 +54,7 @@ final class Recipe {
         self.isAIGenerated = isAIGenerated
         self.imageData = imageData
         self.attempts = attempts
+        self.categories = categories
         let now = Date()
         self.dateCreated = now
         self.dateModified = now

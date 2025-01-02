@@ -13,17 +13,28 @@ import WhatsNewKit
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query(
-        sort: \Recipe.dateModified,
-        order: .reverse,
-        animation: .default
-    ) private var recipes: [Recipe]
+    @Query(sort: \Category.sortOrder) private var categories: [Category]
+    @State private var selectedCategory: Category?
     @State private var showingSettings = false
+    @State private var showingCategories = false
     @State private var addRecipeSheet: AddRecipeSheet?
     @State private var showingImportModal = false
     @StateObject private var subscriptionService = SubscriptionService.shared
     @EnvironmentObject private var deepLinkHandler: DeepLinkHandler
     @State private var navigationPath = NavigationPath()
+    
+    // Dynamic recipes query based on selected category
+    var filteredRecipes: [Recipe] {
+        if let category = selectedCategory {
+            return category.recipes.sorted { $0.dateModified > $1.dateModified }
+        } else {
+            // When no category is selected, fetch all recipes
+            let descriptor = FetchDescriptor<Recipe>(
+                sortBy: [SortDescriptor(\.dateModified, order: .reverse)]
+            )
+            return (try? modelContext.fetch(descriptor)) ?? []
+        }
+    }
 
     enum AddRecipeSheet: Identifiable {
         case manual, ai
@@ -39,36 +50,53 @@ struct ContentView: View {
     var body: some View {
         NavigationStack(path: $navigationPath) {
             ScrollView(.vertical) {
-                LazyVStack(spacing: 16) {
-                    ForEach(recipes) { recipe in
-                        NavigationLink(value: recipe.id) {
-                            RecipeCard(recipe: recipe)
+                VStack(spacing: 16) {
+                    // Category picker
+                    if !categories.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 12) {
+                                categoryButton(nil)
+                                ForEach(categories) { category in
+                                    categoryButton(category)
+                                }
+                            }
+                            .padding(.horizontal)
                         }
-                        .buttonStyle(PlainButtonStyle())
+                        .padding(.vertical, 8)
                     }
+                    
+                    // Recipes
+                    LazyVStack(spacing: 16) {
+                        ForEach(filteredRecipes) { recipe in
+                            NavigationLink(value: recipe.id) {
+                                RecipeCard(recipe: recipe)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                    }
+                    .padding()
                 }
-                .padding()
             }
             .navigationTitle("My Recipes")
             .navigationDestination(for: UUID.self) { recipeId in
-                if let recipe = recipes.first(where: { recipe in recipe.id == recipeId }) {
+                if let recipe = filteredRecipes.first(where: { recipe in recipe.id == recipeId }) {
                     RecipeDetailView(recipe: recipe)
-                }
-            }
-            .onChange(of: deepLinkHandler.selectedRecipeId) { _, newValue in
-                if let recipeId = newValue {
-                    navigationPath.append(recipeId)
-                    deepLinkHandler.selectedRecipeId = nil
                 }
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    NavigationLink(destination: SettingsView()) {
-                        Image(systemName: "gear")
+                    Menu {
+                        Button(action: { showingSettings = true }) {
+                            Label("Settings", systemImage: "gear")
+                        }
+                        Button(action: { showingCategories = true }) {
+                            Label("Manage Categories", systemImage: "folder")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
                     }
-    
                 }
-                            
+                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
                         Button(action: { addRecipeSheet = .manual }) {
@@ -101,7 +129,12 @@ struct ContentView: View {
                 .presentationDragIndicator(.visible)
             }
             .sheet(isPresented: $showingSettings) {
-                
+                SettingsView()
+            }
+            .sheet(isPresented: $showingCategories) {
+                NavigationStack {
+                    CategoryManagementView()
+                }
             }
             .sheet(isPresented: $showingImportModal) {
                 NavigationStack {
@@ -109,18 +142,19 @@ struct ContentView: View {
                         .presentationDetents([.large])
                 }
             }
-            .whatsNewSheet()
         }
     }
     
-    private func deleteRecipes(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                let recipe = recipes[index]
-                recipe.ingredients.forEach { modelContext.delete($0) }
-                recipe.steps.forEach { modelContext.delete($0) }
-                modelContext.delete(recipe)
-            }
+    private func categoryButton(_ category: Category?) -> some View {
+        Button(action: { selectedCategory = category }) {
+            Text(category?.name ?? "All Recipes")
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(selectedCategory?.id == category?.id ? Color.blue : Color(.secondarySystemBackground))
+                )
+                .foregroundStyle(selectedCategory?.id == category?.id ? .white : .primary)
         }
     }
 }
