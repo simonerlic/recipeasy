@@ -29,6 +29,13 @@ struct ImportRecipeView: View {
         subscriptionService.hasActiveSubscription ? subscriberApiKey : userApiKey
     }
     
+    let initialURL: URL?
+        
+    init(initialURL: URL? = nil) {
+        self.initialURL = initialURL
+        _url = State(initialValue: initialURL?.absoluteString ?? "")
+    }
+    
     var body: some View {
         NavigationStack {
             if !subscriptionService.hasActiveSubscription && userApiKey.isEmpty {

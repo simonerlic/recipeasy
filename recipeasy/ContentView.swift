@@ -37,12 +37,13 @@ struct ContentView: View {
     }
 
     enum AddRecipeSheet: Identifiable {
-        case manual, ai
+        case manual, ai, pdf
         
         var id: Int {
             switch self {
             case .manual: return 1
             case .ai: return 2
+            case .pdf: return 3
             }
         }
     }
@@ -109,6 +110,9 @@ struct ContentView: View {
                             Button(action: { showingImportModal = true }) {
                                 Label("Recipe Website", systemImage: "link")
                             }
+                            Button(action: { addRecipeSheet = .pdf }) {
+                                Label("PDF Document", systemImage: "doc.text")
+                            }
                         } label: {
                             Label("Import from...", systemImage: "square.and.arrow.down")
                         }
@@ -120,10 +124,12 @@ struct ContentView: View {
             .sheet(item: $addRecipeSheet) { sheet in
                 NavigationStack {
                     switch sheet {
-                    case .manual:
-                        AddRecipeView()
-                    case .ai:
-                        GenerateRecipeView()
+                        case .manual:
+                            AddRecipeView()
+                        case .ai:
+                            GenerateRecipeView()
+                        case .pdf:
+                            PDFImportView()
                     }
                 }
                 .presentationDragIndicator(.visible)
@@ -138,9 +144,18 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showingImportModal) {
                 NavigationStack {
-                    ImportRecipeView()
+                    ImportRecipeView(initialURL: deepLinkHandler.showingImportURL)
                         .presentationDetents([.large])
                 }
+            }
+            .onChange(of: deepLinkHandler.selectedRecipeId) { _, newValue in
+                if let recipeId = newValue {
+                    navigationPath.append(recipeId)
+                    deepLinkHandler.selectedRecipeId = nil
+                }
+            }
+            .onChange(of: deepLinkHandler.showingImportModal) { _, newValue in
+                showingImportModal = newValue
             }
         }
     }

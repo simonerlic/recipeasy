@@ -37,15 +37,50 @@ enum AIRecipeError: LocalizedError {
     }
 }
 
-struct AIRecipeService {
+class AIRecipeService {
     private let apiKey: String
     private let baseURL = "https://api.openai.com/v1/chat/completions"
+    private let maxRetries = 3
     
     init(apiKey: String) {
         self.apiKey = apiKey
     }
     
     func generateRecipe(prompt: String) async throws -> Recipe {
+        guard !apiKey.isEmpty else {
+            throw AIRecipeError.invalidAPIKey
+        }
+        
+        var lastError: Error?
+        
+        for attempt in 1...maxRetries {
+            do {
+                return try await generateRecipeAttempt(prompt: prompt)
+            } catch let error as AIRecipeError {
+                // Don't retry for specific API errors
+                switch error {
+                case .invalidAPIKey, .quotaExceeded, .serverError, .apiError:
+                    throw error
+                default:
+                    lastError = error
+                    if attempt < maxRetries {
+                        try await Task.sleep(nanoseconds: 1_000_000_000) // 1 second delay
+                        continue
+                    }
+                }
+            } catch {
+                lastError = error
+                if attempt < maxRetries {
+                    try await Task.sleep(nanoseconds: 1_000_000_000)
+                    continue
+                }
+            }
+        }
+        
+        throw lastError ?? AIRecipeError.invalidResponse
+    }
+    
+    private func generateRecipeAttempt(prompt: String) async throws -> Recipe {
         guard !apiKey.isEmpty else {
             throw AIRecipeError.invalidAPIKey
         }
@@ -60,7 +95,7 @@ struct AIRecipeService {
         Ensure all measurements are precise with numeric values.
         Keep step descriptions clear and concise.
         Include relevant cooking tips in the notes field.
-        Ensure you set the difficulty level accordingly, with "easy" being beginner friendly, "medium" being comfortable for a home chef, and "hard" being fairly involved for the average person.
+        Ensure you set the difficulty level accordingly, with "easy" being quick and beginner friendly, "medium" being achievable for a home chef, and "hard" being fairly difficult or lengthy for the average person.
         """
         
         let messages = [

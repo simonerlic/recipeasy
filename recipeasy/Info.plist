@@ -17,5 +17,23 @@
     </array>
 	<key>OPENAI_API_KEY</key>
 	<string>$(OPENAI_API_KEY)</string>
+    <key>UTImportedTypeDeclarations</key>
+    <array>
+        <dict>
+            <key>UTTypeIdentifier</key>
+            <string>com.adobe.pdf</string>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>pdf</string>
+                </array>
+                <key>public.mime-type</key>
+                <array>
+                    <string>application/pdf</string>
+                </array>
+            </dict>
+        </dict>
+    </array>
 </dict>
 </plist>

@@ -58,6 +58,21 @@ struct recipeasyApp: App {
                         whatsNewCollection: self
                     )
                 )
+                .onOpenURL { url in
+                    guard url.scheme == "recipeasy" else {
+                        return
+                    }
+                    
+                    // Handle recipe deep links
+                    if url.host == "recipe",
+                       let recipeId = UUID(uuidString: url.lastPathComponent) {
+                        deepLinkHandler.selectedRecipeId = recipeId
+                    }
+                    print("Handling URL: \(url)")
+                    // Pass URL to handler for additional processing
+                    deepLinkHandler.handleURL(url)
+                }
+
         }
     }
 }
@@ -179,4 +194,22 @@ private extension AttributeContainer {
 
 class DeepLinkHandler: ObservableObject {
     @Published var selectedRecipeId: UUID?
+    @Published var showingImportURL: URL?
+    @Published var showingImportModal = false
+    
+    func handleURL(_ url: URL) {
+        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true) else { return }
+        
+        switch components.host {
+        case "import":
+            print("importing!")
+            if let urlString = components.queryItems?.first(where: { $0.name == "url" })?.value,
+               let importURL = URL(string: urlString) {
+                showingImportURL = importURL
+                showingImportModal = true
+            }
+        default:
+            break
+        }
+    }
 }

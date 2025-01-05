@@ -10,7 +10,9 @@ import StoreKit
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
-    @AppStorage("OPENAI_API_KEY") private var apiKey = ""
+    @AppStorage("OPENAI_API_KEY", store: UserDefaults(suiteName: "group.dev.serlic.recipeasy"))
+    private var apiKey = ""
+    
     @State private var showingApiKey = false
     @State private var showingSubscription = false
     @StateObject private var subscriptionService = SubscriptionService.shared

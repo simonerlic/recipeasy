@@ -11,6 +11,12 @@ import SwiftUI
 @MainActor
 class SubscriptionService: ObservableObject {
     static let shared = SubscriptionService()
+        
+    @Published var apiKey: String {
+        didSet {
+            SharedDefaults.apiKey = apiKey
+        }
+    }
     
     @Published private(set) var subscriptions: [Product] = []
     @Published private(set) var purchasedSubscriptions: [Product] = []
@@ -27,16 +33,15 @@ class SubscriptionService: ObservableObject {
     }
     
     init() {
-        // Start transaction listener
+        self.apiKey = SharedDefaults.apiKey
+        
         transactionListener = listenForTransactions()
         
-        // Initial setup
         Task {
             await requestProducts()
             await updateSubscriptionStatus()
         }
         
-        // Set up periodic status checks
         statusUpdateTimer = Timer.scheduledTimer(withTimeInterval: 60.0, repeats: true) { [weak self] _ in
             Task { [weak self] in
                 await self?.updateSubscriptionStatus()
