@@ -1,11 +1,9 @@
 //
-//
 //  ContentView.swift
 //  recipeasy
 //
 //  Created by Simon Erlic on 2024-11-16.
 //
-
 
 import SwiftUI
 import SwiftData
@@ -22,17 +20,28 @@ struct ContentView: View {
     @StateObject private var subscriptionService = SubscriptionService.shared
     @EnvironmentObject private var deepLinkHandler: DeepLinkHandler
     @State private var navigationPath = NavigationPath()
+    @State private var searchText = ""
     
-    // Dynamic recipes query based on selected category
+    // Dynamic recipes query based on selected category and search text
     var filteredRecipes: [Recipe] {
+        let categoryFiltered: [Recipe]
         if let category = selectedCategory {
-            return category.recipes.sorted { $0.dateModified > $1.dateModified }
+            categoryFiltered = category.recipes.sorted { $0.dateModified > $1.dateModified }
         } else {
-            // When no category is selected, fetch all recipes
             let descriptor = FetchDescriptor<Recipe>(
                 sortBy: [SortDescriptor(\.dateModified, order: .reverse)]
             )
-            return (try? modelContext.fetch(descriptor)) ?? []
+            categoryFiltered = (try? modelContext.fetch(descriptor)) ?? []
+        }
+        
+        if searchText.isEmpty {
+            return categoryFiltered
+        } else {
+            return categoryFiltered.filter { recipe in
+                recipe.name.localizedCaseInsensitiveContains(searchText) ||
+                recipe.recipeDescription.localizedCaseInsensitiveContains(searchText) ||
+                recipe.ingredients.contains { $0.name.localizedCaseInsensitiveContains(searchText) }
+            }
         }
     }
 
@@ -52,6 +61,25 @@ struct ContentView: View {
         NavigationStack(path: $navigationPath) {
             ScrollView(.vertical) {
                 VStack(spacing: 16) {
+                    // Search bar
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundStyle(.secondary)
+                        TextField("Search recipes...", text: $searchText)
+                            .textFieldStyle(.plain)
+                        
+                        if !searchText.isEmpty {
+                            Button(action: { searchText = "" }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                    .padding(8)
+                    .background(Color(.secondarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .padding(.horizontal)
+                    
                     // Category picker
                     if !categories.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
@@ -63,7 +91,7 @@ struct ContentView: View {
                             }
                             .padding(.horizontal)
                         }
-                        .padding(.vertical, 8)
+                        .padding(.top, 8)
                     }
                     
                     // Recipes
