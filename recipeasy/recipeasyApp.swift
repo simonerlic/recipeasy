@@ -77,6 +77,8 @@ struct recipeasyApp: App {
     }
 }
 
+// MARK: - App+WhatsNewCollectionProvider
+
 extension recipeasyApp: WhatsNewCollectionProvider {
     
     /// A WhatsNewCollection
@@ -131,7 +133,6 @@ extension recipeasyApp: WhatsNewCollectionProvider {
                 }()
             )
         )
-        
         WhatsNew(
             version: "1.3.0",
             title: .init(
@@ -145,19 +146,31 @@ extension recipeasyApp: WhatsNewCollectionProvider {
             features: [
                 .init(
                     image: .init(
-                        systemName: "folder.fill",
+                        systemName: "folder",
                         foregroundColor: .cyan
                     ),
                     title: "Recipe Collections",
                     subtitle: .init(
                         try! AttributedString(
-                            markdown: "Organize your recipes in collections!"
+                            markdown: "Organize your recipes in easy-to-sort collections"
                         )
                     )
                 ),
                 .init(
                     image: .init(
-                        systemName: "arrow.2.circlepath.circlepath",
+                        systemName: "magnifyingglass",
+                        foregroundColor: .cyan
+                    ),
+                    title: "Recipe Searching",
+                    subtitle: .init(
+                        try! AttributedString(
+                            markdown: "Search your recipes by title, description, or ingredients"
+                        )
+                    )
+                ),
+                .init(
+                    image: .init(
+                        systemName: "square.and.arrow.down",
                         foregroundColor: .cyan
                     ),
                     title: "Import from PDF",

@@ -185,6 +185,7 @@ struct ContentView: View {
             .onChange(of: deepLinkHandler.showingImportModal) { _, newValue in
                 showingImportModal = newValue
             }
+            .whatsNewSheet()
         }
     }
     
