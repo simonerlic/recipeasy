@@ -1,62 +1,40 @@
 //
-//  AIRecipeService.swift
+//  OpenAIProvider.swift
 //  recipeasy
+//
+//  OpenAI implementation of the AIProvider protocol
 //
 
 import Foundation
 
-enum AIRecipeError: LocalizedError {
-    case invalidURL
-    case invalidResponse
-    case networkError(Error)
-    case decodingError(Error)
-    case apiError(String)
-    case invalidAPIKey
-    case quotaExceeded
-    case serverError
-    
-    var errorDescription: String? {
-        switch self {
-        case .invalidURL:
-            return "Invalid URL configuration"
-        case .invalidResponse:
-            return "Invalid response from server"
-        case .networkError(let error):
-            return "Network error: \(error.localizedDescription)"
-        case .decodingError(let error):
-            return "Failed to process recipe: \(error.localizedDescription)"
-        case .apiError(let message):
-            return message
-        case .invalidAPIKey:
-            return "Invalid API key. Please check your settings."
-        case .quotaExceeded:
-            return "API quota exceeded. Please try again later or check your subscription."
-        case .serverError:
-            return "OpenAI server error. Please try again later."
-        }
-    }
-}
-
-class AIRecipeService {
+class OpenAIProvider: AIProvider {
     private let apiKey: String
     private let baseURL = "https://api.openai.com/v1/chat/completions"
     private let maxRetries = 3
-    
+
+    var name: String {
+        "OpenAI"
+    }
+
+    var isAvailable: Bool {
+        !apiKey.isEmpty
+    }
+
     init(apiKey: String) {
         self.apiKey = apiKey
     }
-    
+
     func generateRecipe(prompt: String) async throws -> Recipe {
         guard !apiKey.isEmpty else {
-            throw AIRecipeError.invalidAPIKey
+            throw AIProviderError.invalidAPIKey
         }
-        
+
         var lastError: Error?
-        
+
         for attempt in 1...maxRetries {
             do {
                 return try await generateRecipeAttempt(prompt: prompt)
-            } catch let error as AIRecipeError {
+            } catch let error as AIProviderError {
                 // Don't retry for specific API errors
                 switch error {
                 case .invalidAPIKey, .quotaExceeded, .serverError, .apiError:
@@ -76,19 +54,19 @@ class AIRecipeService {
                 }
             }
         }
-        
-        throw lastError ?? AIRecipeError.invalidResponse
+
+        throw lastError ?? AIProviderError.invalidResponse
     }
-    
+
     private func generateRecipeAttempt(prompt: String) async throws -> Recipe {
         guard !apiKey.isEmpty else {
-            throw AIRecipeError.invalidAPIKey
+            throw AIProviderError.invalidAPIKey
         }
-        
+
         guard let url = URL(string: baseURL) else {
-            throw AIRecipeError.invalidURL
+            throw AIProviderError.invalidURL
         }
-        
+
         let systemPrompt = """
         You are a helpful cooking assistant. Generate detailed recipes with exact measurements, step-by-step instructions, difficulty ratings, and cooking tips.
         Follow the schema exactly and provide all required fields.
@@ -97,12 +75,12 @@ class AIRecipeService {
         Include relevant cooking tips in the notes field.
         Ensure you set the difficulty level accordingly, with "easy" being quick and beginner friendly, "medium" being achievable for a home chef, and "hard" being fairly difficult or lengthy for the average person.
         """
-        
+
         let messages = [
             ["role": "system", "content": systemPrompt],
             ["role": "user", "content": prompt]
         ]
-        
+
         // Define the JSON schema for the response
         let jsonSchema: [String: Any] = [
             "name": "recipe_response",
@@ -142,7 +120,7 @@ class AIRecipeService {
             ],
             "required": ["name", "description", "cookingTimeMinutes", "difficulty", "ingredients", "steps", "notes"]
         ]
-        
+
         let requestBody: [String: Any] = [
             "model": "gpt-4o-mini",
             "messages": messages,
@@ -155,66 +133,66 @@ class AIRecipeService {
                 ]
             ]
         ]
-        
+
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        
+
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
         } catch let serializationError {
-            throw AIRecipeError.networkError(serializationError)
+            throw AIProviderError.networkError(serializationError)
         }
-        
+
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
-            
+
             // Handle HTTP response
             if let httpResponse = response as? HTTPURLResponse {
                 switch httpResponse.statusCode {
                 case 200...299:
                     break // Success case, continue processing
                 case 401:
-                    throw AIRecipeError.invalidAPIKey
+                    throw AIProviderError.invalidAPIKey
                 case 429:
-                    throw AIRecipeError.quotaExceeded
+                    throw AIProviderError.quotaExceeded
                 case 500...599:
-                    throw AIRecipeError.serverError
+                    throw AIProviderError.serverError
                 default:
                     if let errorResponse = try? JSONDecoder().decode(OpenAIErrorResponse.self, from: data) {
-                        throw AIRecipeError.apiError(errorResponse.error.message)
+                        throw AIProviderError.apiError(errorResponse.error.message)
                     } else {
-                        throw AIRecipeError.invalidResponse
+                        throw AIProviderError.invalidResponse
                     }
                 }
             }
-            
+
             let aiResponse = try JSONDecoder().decode(AIResponse.self, from: data)
             guard let recipeJSON = aiResponse.choices.first?.message.content else {
-                throw AIRecipeError.apiError("No recipe generated")
+                throw AIProviderError.apiError("No recipe generated")
             }
-            
+
             return try parseRecipeJSON(recipeJSON)
-            
+
         } catch let urlError as URLError {
-            throw AIRecipeError.networkError(urlError)
-        } catch let recipeError as AIRecipeError {
+            throw AIProviderError.networkError(urlError)
+        } catch let recipeError as AIProviderError {
             throw recipeError
         } catch let otherError {
-            throw AIRecipeError.networkError(otherError)
+            throw AIProviderError.networkError(otherError)
         }
     }
-    
+
     private func parseRecipeJSON(_ json: String) throws -> Recipe {
         guard let jsonData = json.data(using: .utf8) else {
-            throw AIRecipeError.decodingError(NSError(domain: "", code: -1))
+            throw AIProviderError.decodingError(NSError(domain: "", code: -1))
         }
-        
+
         do {
             let decoder = JSONDecoder()
             let recipeData = try decoder.decode(AIRecipeData.self, from: jsonData)
-            
+
             // Convert AIRecipeData to Recipe model
             let ingredients = recipeData.ingredients.map { ingredient in
                 Ingredient(
@@ -224,7 +202,7 @@ class AIRecipeService {
                     notes: ingredient.notes
                 )
             }
-            
+
             let steps = recipeData.steps.map { step in
                 CookingStep(
                     orderIndex: step.orderIndex,
@@ -233,11 +211,11 @@ class AIRecipeService {
                     notes: step.notes
                 )
             }
-            
+
             guard let difficulty = DifficultyLevel(rawValue: recipeData.difficulty) else {
-                throw AIRecipeError.decodingError(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid difficulty level"]))
+                throw AIProviderError.decodingError(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid difficulty level"]))
             }
-            
+
             return Recipe(
                 name: recipeData.name,
                 recipeDescription: recipeData.description,
@@ -249,7 +227,7 @@ class AIRecipeService {
                 isAIGenerated: true
             )
         } catch let decodingError {
-            throw AIRecipeError.decodingError(decodingError)
+            throw AIProviderError.decodingError(decodingError)
         }
     }
 }
@@ -257,7 +235,7 @@ class AIRecipeService {
 // Response structures for error handling
 private struct OpenAIErrorResponse: Codable {
     let error: OpenAIError
-    
+
     struct OpenAIError: Codable {
         let message: String
         let type: String?

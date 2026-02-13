@@ -12,7 +12,9 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage("OPENAI_API_KEY", store: UserDefaults(suiteName: "group.dev.serlic.recipeasy"))
     private var apiKey = ""
-    
+    @AppStorage("AI_PROVIDER", store: UserDefaults(suiteName: "group.dev.serlic.recipeasy"))
+    private var selectedProvider: String = AIProviderType.openai.rawValue
+
     @State private var showingApiKey = false
     @State private var showingSubscription = false
     @StateObject private var subscriptionService = SubscriptionService.shared
@@ -71,7 +73,70 @@ struct SettingsView: View {
                         .foregroundColor(.gray)
                 }
 
-                if !subscriptionService.hasActiveSubscription {
+                // AI Provider Selection
+                Section {
+                    Picker("AI Provider", selection: Binding(
+                        get: { AIProviderType(rawValue: selectedProvider) ?? .appleIntelligence },
+                        set: { selectedProvider = $0.rawValue }
+                    )) {
+                        ForEach(AIProviderType.allCases, id: \.self) { provider in
+                            VStack(alignment: .leading) {
+                                Text(provider.displayName)
+                                    .tag(provider)
+                            }
+                        }
+                    }
+                    .pickerStyle(.menu)
+
+                    // Show provider description
+                    if let providerType = AIProviderType(rawValue: selectedProvider) {
+                        Text(providerType.description)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    // Show warning if Apple Intelligence is selected but not available
+                    if selectedProvider == AIProviderType.appleIntelligence.rawValue {
+                        #if canImport(FoundationModels)
+                        if #available(iOS 26.0, *) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(.green)
+                                Text("Apple Intelligence is available on this device")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        } else {
+                            HStack(spacing: 8) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundStyle(.orange)
+                                Text("Apple Intelligence requires iOS 26.0 or later. Please select OpenAI.")
+                                    .font(.caption)
+                                    .foregroundStyle(.orange)
+                            }
+                        }
+                        #else
+                        HStack(spacing: 8) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(.orange)
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Apple Intelligence requires iOS 26.0 or later")
+                                    .font(.caption)
+                                    .foregroundStyle(.orange)
+                                Text("Available from June 2025. Please select OpenAI for now.")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        #endif
+                    }
+                } header: {
+                    Text("AI Generation")
+                } footer: {
+                    Text("Choose which AI service to use for recipe generation. Apple Intelligence runs on-device and doesn't require an API key.")
+                }
+
+                if !subscriptionService.hasActiveSubscription && selectedProvider == AIProviderType.openai.rawValue {
                     Section {
                         VStack(alignment: .leading, spacing: 12) {
                             HStack(spacing: 8) {
@@ -131,18 +196,23 @@ struct SettingsView: View {
                 
                 
                 
+                // Version info section
+                Section {
+                    VStack(alignment: .center, spacing: 4) {
+                        Text("Version 1.4.0")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                        Text("Made with ❤️ by Simon")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .listRowBackground(Color.clear)
+                }
             }
             .navigationTitle("Settings")
             .sheet(isPresented: $showingSubscription) {
                 SubscriptionView()
-            }
-            .padding(.top)
-            
-            VStack(alignment: .center) {
-                Text("Version 1.3.0")
-                    .font(.caption2)
-                Text("Made with ❤️ by Simon")
-                    .font(.caption)
             }
         }
     }

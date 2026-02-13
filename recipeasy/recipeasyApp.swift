@@ -13,31 +13,40 @@ import WhatsNewKit
 struct recipeasyApp: App {
     let sharedModelContainer: ModelContainer
     @StateObject private var deepLinkHandler = DeepLinkHandler()
-    
+
     init() {
         do {
-            let schema = Schema([
-                Recipe.self,
-                Ingredient.self,
-                CookingStep.self,
-                RecipeAttempt.self,
-                Category.self
-            ])
-            
-            // Use default URL in the app's Documents directory
-            let modelConfiguration = ModelConfiguration(
-                schema: schema,
-                isStoredInMemoryOnly: false
-            )
-            
+            // Use versioned schema to prevent data loss on future updates
+            // SwiftData will automatically migrate from the existing unversioned schema
+            let schema = Schema(versionedSchema: RecipeSchemaV2.self)
+            let modelConfiguration = ModelConfiguration(schema: schema)
+
             self.sharedModelContainer = try ModelContainer(
                 for: schema,
-                configurations: [modelConfiguration]
+                configurations: modelConfiguration
             )
         } catch {
-            fatalError("Could not initialize ModelContainer: \(error)")
+            // Log the error for debugging
+            print("❌ ModelContainer initialization failed: \(error)")
+
+            // Attempt recovery by creating a fresh container
+            // This should only happen in extreme cases
+            do {
+                print("⚠️ Attempting to create fresh ModelContainer...")
+                let schema = Schema(versionedSchema: RecipeSchemaV2.self)
+                let modelConfiguration = ModelConfiguration(schema: schema)
+
+                self.sharedModelContainer = try ModelContainer(
+                    for: schema,
+                    configurations: modelConfiguration
+                )
+                print("✅ Fresh ModelContainer created successfully")
+            } catch {
+                // If this fails, the app cannot continue
+                fatalError("Could not initialize ModelContainer: \(error)")
+            }
         }
-        
+
         Task {
             await SubscriptionService.shared.updateSubscriptionStatus()
         }
@@ -187,8 +196,58 @@ extension recipeasyApp: WhatsNewCollectionProvider {
                 }()
             )
         )
+        WhatsNew(
+            version: "1.4.0",
+            title: .init(
+                text: .init(
+                    "What's New in\n"                    + AttributedString(
+                        "Recipeasy",
+                        attributes: .foregroundColor(.cyan)
+                    )
+                )
+            ),
+            features: [
+                .init(
+                    image: .init(
+                        systemName: "cpu.fill",
+                        foregroundColor: .cyan
+                    ),
+                    title: "AI Provider Selection",
+                    subtitle: .init(
+                        try! AttributedString(
+                            markdown: "Choose between OpenAI and Apple Intelligence for recipe generation. Apple Intelligence provides on-device, privacy-focused AI (iOS 26+)"
+                        )
+                    )
+                ),
+                .init(
+                    image: .init(
+                        systemName: "shield.checkered",
+                        foregroundColor: .cyan
+                    ),
+                    title: "Enhanced Data Protection",
+                    subtitle: "Your recipes are now safer than ever with improved data persistence. No more crashes or data loss when updating the app!"
+                ),
+                .init(
+                    image: .init(
+                        systemName: "sparkles",
+                        foregroundColor: .cyan
+                    ),
+                    title: "UI Refinements",
+                    subtitle: "Polished interface with better card visibility in light mode, cleaner settings page, and improved visual consistency throughout the app."
+                )
+            ],
+            primaryAction: .init(
+                hapticFeedback: {
+                    #if os(iOS)
+                    .notification(.success)
+                    #else
+                    nil
+                    #endif
+                }()
+            )
+        )
     }
-    
+
 }
 
 private extension AttributeContainer {

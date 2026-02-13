@@ -27,8 +27,10 @@ struct GenerateRecipeView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
-    
+
     @AppStorage("OPENAI_API_KEY") private var userApiKey = ""
+    @AppStorage("AI_PROVIDER", store: UserDefaults(suiteName: "group.dev.serlic.recipeasy"))
+    private var selectedProvider: String = AIProviderType.openai.rawValue
     @StateObject private var subscriptionService = SubscriptionService.shared
     
     @State private var prompt = ""
@@ -64,24 +66,24 @@ struct GenerateRecipeView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
-                    if subscriptionService.subscriptionStatus == .notSubscribed && userApiKey.isEmpty {
-                        APISetupView(
-                            showingSettings: $showingSettings,
-                            showingSubscription: $showingSubscription
-                        )
-                        .navigationTitle("Setup Required")
-                    } else {
+//                    if subscriptionService.subscriptionStatus == .notSubscribed && userApiKey.isEmpty {
+//                        APISetupView(
+//                            showingSettings: $showingSettings,
+//                            showingSubscription: $showingSubscription
+//                        )
+//                        .navigationTitle("Setup Required")
+//                    } else {
                         if let recipe = generatedRecipe {
                             recipeResultView(recipe)
                         } else {
                             promptBuilderView
                             quickSuggestionsView
                         }
-                    }
+//                    }
                 }
                 .padding()
             }
-            .navigationTitle("AI Recipe Generator")
+            .navigationTitle("Generate")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -369,6 +371,11 @@ private func recipeResultView(_ recipe: Recipe) -> some View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
         }
+        Spacer()
+        Text("AI generated recipes may include mistakes, use common sense when recreating these recipes.")
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
     }
     .padding()
     .background(Color(.secondarySystemBackground))
@@ -378,17 +385,38 @@ private func recipeResultView(_ recipe: Recipe) -> some View {
 private func generateRecipe() {
         isGenerating = true
         error = nil
-        
+
         // Combine preferences with the prompt
         let fullPrompt = preferences.buildPromptPrefix() + prompt
-        
+
         Task {
             do {
                 await subscriptionService.updateSubscriptionStatus()
-                
-                let service = AIRecipeService(apiKey: activeApiKey)
-                let recipe = try await service.generateRecipe(prompt: fullPrompt)
-                
+
+                // Create the appropriate AI provider based on user selection
+                let provider: AIProvider
+                let providerType = AIProviderType(rawValue: selectedProvider) ?? .appleIntelligence
+
+                switch providerType {
+                case .openai:
+                    provider = OpenAIProvider(apiKey: activeApiKey)
+                case .appleIntelligence:
+                    provider = AppleIntelligenceProvider()
+                }
+
+                // Check if the provider is available
+                guard provider.isAvailable else {
+                    let errorMessage: String
+                    if providerType == .appleIntelligence {
+                        errorMessage = "Apple Intelligence is not available on this device. Please select OpenAI in Settings."
+                    } else {
+                        errorMessage = "OpenAI API key is missing. Please add it in Settings or subscribe."
+                    }
+                    throw AIProviderError.apiError(errorMessage)
+                }
+
+                let recipe = try await provider.generateRecipe(prompt: fullPrompt)
+
                 await MainActor.run {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                         generatedRecipe = recipe
