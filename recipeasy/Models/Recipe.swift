@@ -4,166 +4,19 @@
 //
 //  Created by Simon Erlic on 2024-11-16.
 //
-
+//  Type aliases for the current schema version
+//  This allows existing code to work without changes
+//
 
 import Foundation
 import SwiftData
 
-@Model
-final class Recipe {
-    @Attribute(.unique) var id: UUID
-    @Relationship(deleteRule: .cascade, inverse: \RecipeAttempt.recipe) var attempts: [RecipeAttempt]
-    @Relationship(deleteRule: .cascade, inverse: \Ingredient.recipe) var ingredients: [Ingredient]
-    @Relationship(deleteRule: .cascade, inverse: \CookingStep.recipe) var steps: [CookingStep]
-    var categories: [Category]
-    
-    var name: String
-    var recipeDescription: String
-    var cookingTimeMinutes: Int
-    var difficulty: DifficultyLevel
-    var notes: String
-    var isAIGenerated: Bool
-    var dateCreated: Date
-    var dateModified: Date
-    var imageData: Data?
-    
-    var hasImage: Bool { imageData != nil }
-    
-    init(
-        id: UUID = UUID(),
-        name: String = "",
-        recipeDescription: String = "",
-        ingredients: [Ingredient] = [],
-        steps: [CookingStep] = [],
-        cookingTimeMinutes: Int = 0,
-        difficulty: DifficultyLevel = .medium,
-        notes: String = "",
-        isAIGenerated: Bool = false,
-        imageData: Data? = nil,
-        attempts: [RecipeAttempt] = [],
-        categories: [Category] = []
-    ) {
-        self.id = id
-        self.name = name
-        self.recipeDescription = recipeDescription
-        self.ingredients = ingredients
-        self.steps = steps
-        self.cookingTimeMinutes = cookingTimeMinutes
-        self.difficulty = difficulty
-        self.notes = notes
-        self.isAIGenerated = isAIGenerated
-        self.imageData = imageData
-        self.attempts = attempts
-        self.categories = categories
-        let now = Date()
-        self.dateCreated = now
-        self.dateModified = now
-    }
-}
+// Type aliases pointing to the current schema version (V2)
+typealias Recipe = RecipeSchemaV2.Recipe
+typealias Ingredient = RecipeSchemaV2.Ingredient
+typealias CookingStep = RecipeSchemaV2.CookingStep
+typealias RecipeAttempt = RecipeSchemaV2.RecipeAttempt
+typealias DifficultyLevel = RecipeSchemaV2.DifficultyLevel
 
-@Model
-final class Ingredient {
-    @Attribute(.unique) var id: UUID
-    var name: String
-    var amount: Double
-    var unit: String
-    var notes: String?
-    var recipe: Recipe?
-    
-    init(
-        id: UUID = UUID(), // Provide default value
-        name: String = "",
-        amount: Double = 0.0,
-        unit: String = "",
-        notes: String? = nil
-    ) {
-        self.id = id
-        self.name = name
-        self.amount = amount
-        self.unit = unit
-        self.notes = notes
-    }
-}
-
-@Model
-final class CookingStep {
-    @Attribute(.unique) var id: UUID
-    var orderIndex: Int
-    var stepDescription: String
-    var durationMinutes: Int?
-    var notes: String?
-    var recipe: Recipe?
-    var imageData: Data?
-    var isCompleted: Bool // Add this property
-    
-    var hasImage: Bool { imageData != nil }
-    
-    init(
-        id: UUID = UUID(),
-        orderIndex: Int = 0,
-        stepDescription: String = "",
-        durationMinutes: Int? = nil,
-        notes: String? = nil,
-        imageData: Data? = nil,
-        isCompleted: Bool = false // Add default value
-    ) {
-        self.id = id
-        self.orderIndex = orderIndex
-        self.stepDescription = stepDescription
-        self.durationMinutes = durationMinutes
-        self.notes = notes
-        self.imageData = imageData
-        self.isCompleted = isCompleted
-    }
-}
-
-@Model
-final class RecipeAttempt {
-    @Attribute(.unique) var id: UUID
-    var recipe: Recipe?
-    var dateCreated: Date
-    var notes: String
-    var imageData: Data?
-    var rating: Int?
-    
-    init(
-        id: UUID = UUID(), // Provide default value
-        recipe: Recipe? = nil,
-        notes: String = "",
-        imageData: Data? = nil,
-        rating: Int? = nil
-    ) {
-        self.id = id
-        self.recipe = recipe
-        self.notes = notes
-        self.imageData = imageData
-        self.rating = rating
-        self.dateCreated = Date()
-    }
-}
-
-enum DifficultyLevel: String, Codable {
-    case easy = "Easy"
-    case medium = "Medium"
-    case hard = "Hard"
-}
-
-extension Ingredient: Hashable {
-    static func == (lhs: Ingredient, rhs: Ingredient) -> Bool {
-        lhs.id == rhs.id
-    }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-}
-
-extension CookingStep: Hashable {
-    static func == (lhs: CookingStep, rhs: CookingStep) -> Bool {
-        lhs.id == rhs.id
-    }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-}
+// Note: Category is not aliased here because it has its own file
+// The extensions for Hashable are already defined in RecipeSchemaV2.swift

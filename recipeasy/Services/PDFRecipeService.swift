@@ -10,12 +10,12 @@ import Foundation
 import PDFKit
 
 class PDFRecipeService {
-    private let aiService: AIRecipeService
-    
-    init(apiKey: String) {
-        self.aiService = AIRecipeService(apiKey: apiKey)
+    private let aiProvider: AIProvider
+
+    init(provider: AIProvider) {
+        self.aiProvider = provider
     }
-    
+
     func parseRecipeFromPDF(url: URL) async throws -> Recipe {
         guard let pdf = PDFDocument(url: url) else {
             throw ImportError.invalidPDF
@@ -71,7 +71,7 @@ class PDFRecipeService {
         }
         """
         
-        return try await aiService.generateRecipe(prompt: prompt)
+        return try await aiProvider.generateRecipe(prompt: prompt)
     }
 }
 

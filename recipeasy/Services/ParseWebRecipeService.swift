@@ -9,12 +9,12 @@
 import Foundation
 
 class ParseWebRecipeService {
-    private let aiService: AIRecipeService
-    
-    init(apiKey: String) {
-        self.aiService = AIRecipeService(apiKey: apiKey)
+    private let aiProvider: AIProvider
+
+    init(provider: AIProvider) {
+        self.aiProvider = provider
     }
-    
+
     func parseRecipeFromHTML(_ html: String) async throws -> Recipe {
         // Clean HTML by removing scripts, styles, and comments
         let cleanHTML = cleanHTML(html)
@@ -50,8 +50,8 @@ class ParseWebRecipeService {
         }
         """
         
-        // Reuse existing API service but bypass its system prompt
-        return try await aiService.generateRecipe(prompt: prompt)
+        // Use the AI provider to parse the recipe
+        return try await aiProvider.generateRecipe(prompt: prompt)
     }
     
     private func cleanHTML(_ html: String) -> String {

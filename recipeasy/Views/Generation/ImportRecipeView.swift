@@ -13,6 +13,8 @@ struct ImportRecipeView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
     @AppStorage("OPENAI_API_KEY") private var userApiKey = ""
+    @AppStorage("AI_PROVIDER", store: UserDefaults(suiteName: "group.dev.serlic.recipeasy"))
+    private var selectedProvider: String = AIProviderType.openai.rawValue
     @StateObject private var subscriptionService = SubscriptionService.shared
     
     @State private var url = ""
@@ -192,11 +194,22 @@ struct ImportRecipeView: View {
             guard let html = String(data: data, encoding: .utf8) else {
                 throw URLRecipeError.parsingError
             }
-            
-            // Parse with LLM
-            let service = ParseWebRecipeService(apiKey: activeApiKey)
+
+            // Create the appropriate AI provider
+            let provider: AIProvider
+            let providerType = AIProviderType(rawValue: selectedProvider) ?? .appleIntelligence
+
+            switch providerType {
+            case .openai:
+                provider = OpenAIProvider(apiKey: activeApiKey)
+            case .appleIntelligence:
+                provider = AppleIntelligenceProvider()
+            }
+
+            // Parse with AI provider
+            let service = ParseWebRecipeService(provider: provider)
             let recipe = try await service.parseRecipeFromHTML(html)
-            
+
             // Save recipe
             modelContext.insert(recipe)
             dismiss()

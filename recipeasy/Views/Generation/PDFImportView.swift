@@ -14,6 +14,8 @@ struct PDFImportView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
     @AppStorage("OPENAI_API_KEY") private var userApiKey = ""
+    @AppStorage("AI_PROVIDER", store: UserDefaults(suiteName: "group.dev.serlic.recipeasy"))
+    private var selectedProvider: String = AIProviderType.openai.rawValue
     @StateObject private var subscriptionService = SubscriptionService.shared
     
     @State private var isShowingPDFPicker = false
@@ -140,14 +142,25 @@ struct PDFImportView: View {
     
     private func importPDF() async {
         guard let url = selectedPDFURL else { return }
-        
+
         isLoading = true
         defer { isLoading = false }
-        
+
         do {
-            let service = PDFRecipeService(apiKey: activeApiKey)
+            // Create the appropriate AI provider
+            let provider: AIProvider
+            let providerType = AIProviderType(rawValue: selectedProvider) ?? .appleIntelligence
+
+            switch providerType {
+            case .openai:
+                provider = OpenAIProvider(apiKey: activeApiKey)
+            case .appleIntelligence:
+                provider = AppleIntelligenceProvider()
+            }
+
+            let service = PDFRecipeService(provider: provider)
             let recipe = try await service.parseRecipeFromPDF(url: url)
-            
+
             // Save recipe
             modelContext.insert(recipe)
             dismiss()
