@@ -1,2 +1,2 @@
-# Secrets
-recipeasy/Secrets.xcconfig
+# Secrets - Local overrides only (Secrets.xcconfig is committed with env var references)
+recipeasy/Secrets.local.xcconfig
